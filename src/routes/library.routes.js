@@ -45,7 +45,7 @@ router.post('/', protect, adminOnly, validateRequest(createLibrarySchema), libra
  *       401:
  *         description: Unauthorized
  */
-router.get('/', protect, libraryController.getAllLibraries);
+router.get('/', libraryController.getAllLibraries);
 
 /**
  * @swagger

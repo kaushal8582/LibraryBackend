@@ -1,26 +1,60 @@
-'use strict';
+"use strict";
 
-const Razorpay = require('razorpay');
-const { RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET } = require('../config/env');
-const logger = require('../config/logger');
+const Razorpay = require("razorpay");
+const { RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET } = require("../config/env");
+const logger = require("../config/logger");
+const DAO = require("../dao");
+const { PAYMENT_MODEL } = require("./constants");
 
 // Initialize Razorpay
 const razorpayInstance = new Razorpay({
   key_id: RAZORPAY_KEY_ID,
-  key_secret: RAZORPAY_KEY_SECRET
+  key_secret: RAZORPAY_KEY_SECRET,
 });
 
 // Create order
-const createOrder = async (amount, currency = 'INR', receipt = 'order_receipt', notes = {}) => {
+const createOrder = async (
+  amount,
+  currency = "INR",
+  receipt = "order_receipt",
+  notes = {},
+  label = "production"
+) => {
   try {
+    const currentMonth = new Date().toISOString().slice(0, 7);
+   
+    let existingPayment = await DAO.getOneData(PAYMENT_MODEL, {
+      studentId: notes.studentId,
+      month: currentMonth,
+      status: "pending",
+    });
+
+     console.log("existing Payment", existingPayment);
+     console.log("notes ",notes);
+
+
+
+    if (existingPayment) {
+      return {
+        id: existingPayment.razorpayOrderId,
+        amount: existingPayment.amount,
+        currency: existingPayment.currency,
+        status: existingPayment.status,
+        fromDB: true,
+      };
+    }
+
     const options = {
-      amount: amount * 100, // amount in smallest currency unit (paise)
+      amount: amount * 100,
       currency,
       receipt,
-      notes
+      notes: { ...notes, label },
     };
     
-    return await razorpayInstance.orders.create(options);
+
+    const res = await razorpayInstance.orders.create(options);
+    console.log("response", res);
+    return res;
   } catch (error) {
     logger.error(`Error creating Razorpay order: ${error.message}`);
     throw error;
@@ -30,12 +64,12 @@ const createOrder = async (amount, currency = 'INR', receipt = 'order_receipt', 
 // Verify payment
 const verifyPayment = (paymentId, orderId, signature) => {
   try {
-    const crypto = require('crypto');
+    const crypto = require("crypto");
     const generatedSignature = crypto
-      .createHmac('sha256', RAZORPAY_KEY_SECRET)
+      .createHmac("sha256", RAZORPAY_KEY_SECRET)
       .update(`${orderId}|${paymentId}`)
-      .digest('hex');
-    
+      .digest("hex");
+
     return generatedSignature === signature;
   } catch (error) {
     logger.error(`Error verifying Razorpay payment: ${error.message}`);
@@ -46,5 +80,5 @@ const verifyPayment = (paymentId, orderId, signature) => {
 module.exports = {
   razorpayInstance,
   createOrder,
-  verifyPayment
+  verifyPayment,
 };

@@ -10,6 +10,7 @@ const createStudentSchema = Joi.object({
   address: Joi.string().optional(),
   fee : Joi.string().required(),
   timing : Joi.string().optional(),
+  joinDate : Joi.date().required(),
 });
 
 // Update student validation schema
@@ -18,9 +19,11 @@ const updateStudentSchema = Joi.object({
   email: Joi.string().email(),
   phone: Joi.string().pattern(/^\d{10}$/),
   address: Joi.string(),
-  course: Joi.string(),
-  semester: Joi.number().integer().min(1).max(10),
-  borrowedBooks: Joi.array().items(Joi.string())
+  fee : Joi.string(),
+  timing : Joi.string(),
+  joinDate : Joi.date(),
+  status : Joi.string().optional(),
+  
 }).min(1);
 
 module.exports = {

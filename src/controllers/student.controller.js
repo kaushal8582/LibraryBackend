@@ -26,8 +26,14 @@ const createStudent = async (req, res) => {
  */
 const getAllStudents = async (req, res) => {
   try {
-    const filter = req.query.libraryId ? { libraryId: req.query.libraryId } : {};
-    const students = await studentService.getAllStudents(filter);
+    const loggedInUser = req.user;
+    const filter = req.query.search ? { search: req.query.search } : {};
+    const status = req.query.status || '';
+    if(status.trim() !== ''){
+      filter.status = status.toLowerCase();
+    }
+    
+    const students = await studentService.getAllStudents(filter,loggedInUser);
     successResponse(res, 'Students retrieved successfully', students);
   } catch (error) {
     errorResponse(res, error.message, error.statusCode || 400);

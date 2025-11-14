@@ -4,28 +4,22 @@ const mongoose = require("mongoose");
 
 const studentSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: [true, "Student name is required"],
-      trim: true,
-    },
-    email: {
-      type: String,
-      trim: true,
-      lowercase: true,
-    },
-    phone: {
-      type: String,
-      trim: true,
-    },
     libraryId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Library",
       required: true,
     },
-
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    joinDate: {
+      type: Date,
+      default: Date.now,
+    },
     address: {
-      type : String
+      type: String,
     },
     status: {
       type: String,
@@ -43,6 +37,18 @@ const studentSchema = new mongoose.Schema(
     timing: {
       type: String,
       optional: true,
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+    nextDueDate: {
+      type: Date,
+      required: true,
+    },
+    isPaymentDoneForThisMonth: {
+      type: Boolean,
+      default: false,
     },
   },
   {

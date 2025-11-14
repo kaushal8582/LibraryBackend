@@ -4,7 +4,7 @@ const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/auth.controller');
 const validateRequest = require('../middleware/validateRequest');
-const { registerSchema, loginSchema, refreshTokenSchema } = require('../validators/auth.validator');
+const { registerSchema, loginSchema, refreshTokenSchema, updatePasswordSchema } = require('../validators/auth.validator');
 const { protect } = require('../middleware/auth.middleware');
 
 /**
@@ -97,5 +97,6 @@ router.post('/login', validateRequest(loginSchema), authController.login);
 router.post('/refresh-token', validateRequest(refreshTokenSchema), authController.refreshToken);
 
 router.get("/info",protect,authController.getInfo)
+router.post("/update-password", validateRequest(updatePasswordSchema), protect,authController.updatePassword)
 
 module.exports = router;

@@ -11,6 +11,8 @@ const swaggerJsDoc = require('swagger-jsdoc');
 const authRoutes = require('./routes/auth.routes');
 const libraryRoutes = require('./routes/library.routes');
 const studentRoutes = require('./routes/student.routes');
+const paymentRoutes = require('./routes/payment.routes');
+const dashboardRoutes = require('./routes/dashboard.routes');
 
 // Import middleware
 const errorHandler = require('./middleware/errorHandler');
@@ -54,6 +56,8 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/libraries', libraryRoutes);
 app.use('/api/students', studentRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // Error handling middleware
 app.use(errorHandler);

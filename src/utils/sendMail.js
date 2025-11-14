@@ -1,39 +1,29 @@
-'use strict';
-
 const nodemailer = require('nodemailer');
-const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = require('../config/env');
-const logger = require('../config/logger');
+// const config = require('../config');
 
-// Create transporter
-const transporter = nodemailer.createTransport({
-  host: SMTP_HOST,
-  port: SMTP_PORT,
-  secure: SMTP_PORT === 465,
-  auth: {
-    user: SMTP_USER,
-    pass: SMTP_PASS
-  }
-});
+const sendEmail = async (to, subject, htmlContent, attachments) => {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
+    }
+  });
 
-// Send email
-const sendEmail = async (to, subject, html) => {
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to,
+    subject,
+    html: htmlContent,
+    attachments: Array.isArray(attachments) && attachments.length ? attachments : undefined
+  };
+
   try {
-    const mailOptions = {
-      from: `"LibTrack" <${SMTP_USER}>`,
-      to,
-      subject,
-      html
-    };
-    
-    const info = await transporter.sendMail(mailOptions);
-    logger.info(`Email sent: ${info.messageId}`);
-    return info;
+    await transporter.sendMail(mailOptions);
   } catch (error) {
-    logger.error(`Error sending email: ${error.message}`);
-    throw error;
+    console.error('Error sending email:', error);
   }
 };
 
-module.exports = {
-  sendEmail
-};
+// Exporting as an object so destructuring works
+module.exports = sendEmail;

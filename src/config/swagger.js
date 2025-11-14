@@ -277,6 +277,140 @@ const options = {
               description: 'List of borrowed book IDs'
             }
           }
+        },
+        CreatePayment: {
+          type: 'object',
+          required: ['studentId', 'libraryId', 'amount'],
+          properties: {
+            studentId: {
+              type: 'string',
+              description: 'Student ID'
+            },
+            libraryId: {
+              type: 'string',
+              description: 'Library ID'
+            },
+            amount: {
+              type: 'number',
+              description: 'Payment amount'
+            },
+            currency: {
+              type: 'string',
+              enum: ['INR'],
+              default: 'INR',
+              description: 'Currency code'
+            },
+            description: {
+              type: 'string',
+              description: 'Payment description'
+            },
+            month: {
+              type: 'string',
+              pattern: '^\\d{4}-\\d{2}$',
+              description: 'Month in YYYY-MM format'
+            }
+          }
+        },
+        VerifyPayment: {
+          type: 'object',
+          required: ['razorpay_payment_id', 'razorpay_order_id', 'razorpay_signature'],
+          properties: {
+            razorpay_payment_id: {
+              type: 'string',
+              description: 'Razorpay payment ID'
+            },
+            razorpay_order_id: {
+              type: 'string',
+              description: 'Razorpay order ID'
+            },
+            razorpay_signature: {
+              type: 'string',
+              description: 'Razorpay signature'
+            }
+          }
+        },
+        Payment: {
+          type: 'object',
+          properties: {
+            _id: {
+              type: 'string',
+              description: 'Payment ID'
+            },
+            studentId: {
+              type: 'string',
+              description: 'Student ID'
+            },
+            libraryId: {
+              type: 'string',
+              description: 'Library ID'
+            },
+            amount: {
+              type: 'number',
+              description: 'Payment amount'
+            },
+            currency: {
+              type: 'string',
+              description: 'Currency code'
+            },
+            paymentDate: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Payment date'
+            },
+            paymentMethod: {
+              type: 'string',
+              enum: ['razorpay', 'cash', 'other'],
+              description: 'Payment method'
+            },
+            razorpayPaymentId: {
+              type: 'string',
+              description: 'Razorpay payment ID'
+            },
+            razorpayOrderId: {
+              type: 'string',
+              description: 'Razorpay order ID'
+            },
+            razorpayRefundId: {
+              type: 'string',
+              description: 'Razorpay refund ID'
+            },
+            month: {
+              type: 'string',
+              description: 'Payment month'
+            },
+            status: {
+              type: 'string',
+              enum: ['pending', 'completed', 'failed', 'refunded'],
+              description: 'Payment status'
+            },
+            description: {
+              type: 'string',
+              description: 'Payment description'
+            },
+            refundAmount: {
+              type: 'number',
+              description: 'Refund amount'
+            },
+            refundReason: {
+              type: 'string',
+              description: 'Refund reason'
+            },
+            refundDate: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Refund date'
+            },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Created at'
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Updated at'
+            }
+          }
         }
       }
     },
