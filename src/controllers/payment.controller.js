@@ -99,11 +99,30 @@ const processRefund = async (req, res) => {
   }
 };
 
+
+const makePaymentInCash = async (req, res) => {
+  try {
+    const { studentId, numberOfMonths, paymentDate } = req.body;
+
+    const userId = req.user._id;
+
+    console.log("req body",req.body);
+    console.log("userId",userId);
+    
+    const result = await paymentService.makePaymentInCash(paymentDate,numberOfMonths,studentId);
+    
+    return successResponse(res, 'Payment processed successfully', result);
+  } catch (error) {
+    return errorResponse(res, error.message, 400);
+  }
+};
+
 module.exports = {
   createPaymentOrder,
   verifyPayment,
   getPaymentsByStudent,
   getPaymentsByLibrary,
   getPaymentById,
-  processRefund
+  processRefund,
+  makePaymentInCash
 };

@@ -5,7 +5,7 @@ const router = express.Router();
 const libraryController = require('../controllers/library.controller');
 const validateRequest = require('../middleware/validateRequest');
 const { createLibrarySchema, updateLibrarySchema } = require('../validators/library.validator');
-const { protect, adminOnly } = require('../middleware/auth.middleware');
+const { protect, adminOnly, adminOrLibrarianOnly } = require('../middleware/auth.middleware');
 
 /**
  * @swagger
@@ -103,7 +103,7 @@ router.get('/:id', protect, libraryController.getLibraryById);
  *       404:
  *         description: Library not found
  */
-router.put('/:id', protect, adminOnly, validateRequest(updateLibrarySchema), libraryController.updateLibrary);
+router.put('/:id', protect, adminOrLibrarianOnly, validateRequest(updateLibrarySchema), libraryController.updateLibrary);
 
 /**
  * @swagger

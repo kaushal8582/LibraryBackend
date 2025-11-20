@@ -4,10 +4,16 @@ const app = require('./app');
 const { PORT } = require('./config/env');
 const logger = require('./config/logger');
 const connectDB = require('./config/db');
+
+// Import sendReminderEmails function
+const { sendReminderEmails } = require('./services/cronService');
 // Connect to database
 connectDB();
 
 // Cron jobs will be initialized later
+
+sendReminderEmails();
+
 // Commented out for initial development
 // const { scheduleReminderJob } = require('./utils/cronJobs');
 // scheduleReminderJob();

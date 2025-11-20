@@ -25,6 +25,9 @@ const logger = require('./config/logger');
 // Initialize express app
 const app = express();
 
+
+
+
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -58,6 +61,8 @@ app.use('/api/libraries', libraryRoutes);
 app.use('/api/students', studentRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+
+
 
 // Error handling middleware
 app.use(errorHandler);

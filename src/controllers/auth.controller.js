@@ -21,7 +21,7 @@ const login = async (req, res) => {
     const result = await authService.login(email, password, role, libraryId);
     return successResponse(res, 'Login successful', result);
   } catch (error) {
-    return errorResponse(res, error.message, 401);
+    return errorResponse(res, error.message, 400);
   }
 };
 

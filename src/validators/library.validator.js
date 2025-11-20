@@ -18,23 +18,13 @@ const createLibrarySchema = Joi.object({
     notificationChannels: Joi.array().items(Joi.string().valid('email', 'sms')).default(['email'])
   })
 });
-
+ 
 // Update library validation schema
 const updateLibrarySchema = Joi.object({
-  name: Joi.string().trim(),
-  address: Joi.string().trim(),
-  city: Joi.string().trim(),
-  state: Joi.string().trim(),
-  zipCode: Joi.string().trim(),
-  email: Joi.string().email().trim(),
-  phone: Joi.string().trim(),
-  subscriptionStatus: Joi.string().valid('active', 'inactive', 'pending'),
-  settings: Joi.object({
-    reminderFrequency: Joi.string().valid('daily', 'weekly', 'monthly'),
-    paymentGateway: Joi.string().valid('razorpay', 'stripe'),
-    notificationChannels: Joi.array().items(Joi.string().valid('email', 'sms'))
-  }),
-  isActive: Joi.boolean()
+  name: Joi.string().trim().required(),
+  address: Joi.string().trim().optional(),
+  contactEmail : Joi.string().email().trim().required(),
+  contactPhone : Joi.string().trim().required(),
 });
 
 module.exports = {

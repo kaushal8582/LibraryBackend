@@ -170,4 +170,28 @@ router.get('/:id', protect, paymentController.getPaymentById);
  */
 router.post('/:id/refund', protect, paymentController.processRefund);
 
+/**
+ * @swagger
+ * /api/payments/cash:
+ *   post:
+ *     summary: Process payment in cash
+ *     tags: [Payments]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/MakePaymentInCash'
+ *     responses:
+ *       200:
+ *         description: Payment processed successfully
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ */
+router.post('/cash', protect, paymentController.makePaymentInCash);
+
 module.exports = router;

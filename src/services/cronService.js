@@ -6,11 +6,15 @@ const sendEmail = require("../utils/sendMail");
 
 const sendReminderEmails = async () => {
   try {
+    console.log("Sending reminder emails...");
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     const tenDaysFromNow = new Date(today);
     tenDaysFromNow.setDate(today.getDate() + 10);
+
+    console.log("Today:", today);
+    console.log("Ten days from now:", tenDaysFromNow);
 
     // ✅ Step 1: Find students whose payment due date is between today and 10 days ahead
     const students = await DAO.getData(STUDENT_MODEL, {
@@ -20,6 +24,8 @@ const sendReminderEmails = async () => {
         $lte: tenDaysFromNow,
       },
     });
+
+    console.log("Found students:", students);
 
     // ✅ Step 2: Loop through students and check if a payment order already exists
     for (const student of students) {
@@ -70,6 +76,8 @@ const sendReminderEmails = async () => {
     // ✅ Step 4: Send email to all those students
     // sendBulkReminderEmails(students);
 
+    console.log("Email sent to students:", students);
+
     const templatePath = path.join(__dirname, "..", "views", "reminder.ejs");
 
     // ✅ Step 5: Render email template with student name
@@ -82,4 +90,8 @@ const sendReminderEmails = async () => {
   } catch (error) {
     logger.error("Error sending reminder emails:", error);
   }
+};
+
+module.exports = {
+  sendReminderEmails,
 };

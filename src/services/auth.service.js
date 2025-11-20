@@ -47,7 +47,7 @@ const register = async (userData) => {
     password: hashedPassword,
     phone: phoneNo,
     libraryId: createLibrary[0]._id,
-    role: "librarian"
+    role: "librarian",
   });
   return result[0];
 };
@@ -56,7 +56,6 @@ const register = async (userData) => {
 const login = async (email, password, role, libraryId) => {
   // Find user
   const user = await User.findOne({ email }).select("+password");
-
 
   if (!user) {
     throw new Error(ERROR_CODES.INVALID_CREDENTIALS.message);
@@ -74,8 +73,12 @@ const login = async (email, password, role, libraryId) => {
     throw new Error(ERROR_CODES.INVALID_CREDENTIALS.message);
   }
 
-  if (libraryId && user.libraryId.toString() !== libraryId) {
-    throw new Error("Library ID does not match");
+  console.log("library id", libraryId, user.libraryId);
+
+  if (role === "student") {
+    if (!libraryId && user.libraryId.toString() !== libraryId) {
+      throw new Error("Library ID does not match");
+    }
   }
 
   // Update last login
@@ -194,12 +197,12 @@ const userInfo = async (userId) => {
           "studentData.status": 1,
           "studentData.userId": 1,
           "studentData.libraryId": 1,
-          "studentData.joinDate" : 1,
-          "studentData.address" : 1,
-          "studentData.fee" : 1,
-          "studentData.timing":1,
-          "studentData.nextDueDate":1,
-          "studentData.isPaymentDoneForThisMonth":1,
+          "studentData.joinDate": 1,
+          "studentData.address": 1,
+          "studentData.fee": 1,
+          "studentData.timing": 1,
+          "studentData.nextDueDate": 1,
+          "studentData.isPaymentDoneForThisMonth": 1,
         },
       },
     ];
@@ -214,10 +217,10 @@ const userInfo = async (userId) => {
   }
 };
 
-const updatePassword =  async(oldPassword,newPassword,userId)=>{
+const updatePassword = async (oldPassword, newPassword, userId) => {
   try {
-    const user = await DAO.getOneData(USER_MODEL,{_id:userId});
-    if(!user) throw new Error("User not found");
+    const user = await DAO.getOneData(USER_MODEL, { _id: userId });
+    if (!user) throw new Error("User not found");
 
     console.log("userd", user);
 
@@ -239,12 +242,10 @@ const updatePassword =  async(oldPassword,newPassword,userId)=>{
     return {
       message: "Password updated successfully",
     };
-
   } catch (error) {
     throw new Error(error.message);
   }
-}
-
+};
 
 module.exports = {
   register,

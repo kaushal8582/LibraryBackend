@@ -67,7 +67,7 @@ const createPaymentOrder = async (paymentData) => {
     const paymentDataToSave = {
       studentId,
       libraryId,
-      amount:totalAmount,
+      amount: totalAmount,
       currency,
       razorpayOrderId: razorpayOrder.id,
       status: "pending",
@@ -287,7 +287,7 @@ const getPaymentsByLibrary = async (libraryId, lastDays = 30) => {
         description: 1,
         createdAt: 1,
         updatedAt: 1,
-        studentId : 1,
+        studentId: 1,
 
         student: {
           _id: "$student._id",
@@ -379,6 +379,97 @@ const processRefund = async (paymentId, refundData) => {
   }
 };
 
+const makePaymentInCash = async (paymentDate, numberOfMonths, studentId) => {
+  try {
+    numberOfMonths = Number(numberOfMonths) || 1;
+
+    const student = await DAO.getOneData(STUDENT_MODEL, { userId: studentId });
+
+    if (!student) {
+      throw new Error("Student not found");
+    }
+
+    const today = new Date(paymentDate || new Date());
+
+    // 🟦 STEP 1: Fetch pending payments FIRST
+    let pendingPayments = await DAO.getData(
+      PAYMENT_MODEL,
+      {
+        studentId: studentId,
+        status: "pending",
+      },
+      {},
+      {
+        sort: { paymentDate: 1 },
+      }
+    );
+
+    let monthsLeft = numberOfMonths;
+
+    // 🟧 STEP 2: Mark pending payments as completed
+    for (let payment of pendingPayments) {
+      if (monthsLeft <= 0) break;
+
+      const updated = await DAO.updateData(
+        PAYMENT_MODEL,
+        { _id: payment._id },
+        {
+          status: "completed",
+          paymentMethod: "cash",
+          paymentDate: today,
+        },
+        { new: true }
+      );
+
+      monthsLeft -= 1;
+    }
+
+    // 🟩 STEP 3: If still months left, create advance payments
+    if (monthsLeft > 0) {
+      for (let i = 0; i < monthsLeft; i++) {
+        const student = await DAO.getOneData(STUDENT_MODEL, {
+          userId: studentId,
+        });
+
+        const newPayment = await DAO.createData(PAYMENT_MODEL, {
+          studentId,
+          libraryId: student.libraryId,
+          amount: student.fee,
+          currency: "INR",
+          status: "completed",
+          paymentMethod: "cash",
+          paymentDate: today,
+          month: student.nextDueDate.toISOString().slice(0, 7),
+        });
+
+        const current = new Date(student.nextDueDate);
+
+        const nextDueDate = new Date(
+          current.getFullYear(),
+          current.getMonth() + 1,
+          current.getDate()
+        );
+
+        const updatedStudent = await DAO.updateData(
+          STUDENT_MODEL,
+          { userId: studentId },
+          {
+            nextDueDate: nextDueDate,
+          },
+          { new: true }
+        );
+      }
+    }
+
+    return {
+      message: "Cash payment processed successfully",
+    };
+  } catch (error) {
+    logger.error(`Error processing payment in cash: ${error.message}`);
+    throw new Error("Failed to process payment in cash: " + error.message);
+  }
+};
+
 module.exports = {
   createPaymentOrder,
   verifyPayment,
@@ -386,4 +477,5 @@ module.exports = {
   getPaymentsByLibrary,
   getPaymentById,
   processRefund,
+  makePaymentInCash,
 };
