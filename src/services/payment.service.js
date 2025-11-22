@@ -229,7 +229,7 @@ const getPaymentsByStudent = async (studentId) => {
 };
 
 // Get payments by library
-const getPaymentsByLibrary = async (libraryId, lastDays = 30) => {
+const getPaymentsByLibrary = async (libraryId, lastDays = 30,limit=25,skip=0) => {
   const matchQuery = {
     libraryId: new mongoose.Types.ObjectId(libraryId),
     paymentDate: {
@@ -240,6 +240,15 @@ const getPaymentsByLibrary = async (libraryId, lastDays = 30) => {
   const aggregate = [
     {
       $match: matchQuery,
+    },
+    {
+      $skip: Number(skip)*Number(limit),
+    },
+    {
+      $limit: Number(limit),
+    },
+    {
+      $sort: { createdAt: -1 },
     },
     {
       $lookup: {
@@ -309,14 +318,19 @@ const getPaymentsByLibrary = async (libraryId, lastDays = 30) => {
   ];
 
   const payments = await DAO.aggregateData(PAYMENT_MODEL, aggregate);
+  const totalPayments = await DAO.count(PAYMENT_MODEL, matchQuery);
 
-  console.log("payments ", payments);
+  // console.log("payments ", payments);
+  // console.log("totalPayments ", totalPayments);
 
   if (!payments || payments.length === 0) {
     throw new Error("No payments found for this library");
   }
 
-  return payments;
+  return {
+    payments,
+    totalPayments,
+  };
 };
 
 // Get payment by ID

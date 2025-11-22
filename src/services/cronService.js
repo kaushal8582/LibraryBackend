@@ -3,6 +3,11 @@ const { STUDENT_MODEL, PAYMENT_MODEL } = require("../utils/constants");
 const ejs = require("ejs");
 const path = require("path");
 const sendEmail = require("../utils/sendMail");
+const {
+  createOrder,
+  verifyPayment: verifyRazorpaySignature,
+  razorpayInstance,
+} = require("../utils/razorpayClient");
 
 const sendReminderEmails = async () => {
   try {
@@ -10,20 +15,41 @@ const sendReminderEmails = async () => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const tenDaysFromNow = new Date(today);
-    tenDaysFromNow.setDate(today.getDate() + 10);
+    // 10 days ahead
+    const tenDaysAhead = new Date(today);
+    tenDaysAhead.setDate(today.getDate() + 10);
 
-    console.log("Today:", today);
-    console.log("Ten days from now:", tenDaysFromNow);
+    // 10 days behind
+    const tenDaysBehind = new Date(today);
+    tenDaysBehind.setDate(today.getDate() - 10);
 
-    // ✅ Step 1: Find students whose payment due date is between today and 10 days ahead
-    const students = await DAO.getData(STUDENT_MODEL, {
-      isPaymentDoneForThisMonth: false,
-      nextDueDate: {
-        $gte: today,
-        $lte: tenDaysFromNow,
+    // Find students whose due date is within ±10 days of today
+    
+
+    const aggregate =[
+      {
+        $match: {
+          isPaymentDoneForThisMonth: false,
+          nextDueDate: {
+            $gte: tenDaysBehind,
+            $lte: tenDaysAhead,
+          },
+        }
       },
-    });
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user",
+        }
+      },
+      {
+        $unwind: "$user",
+      },
+    ]
+
+const students  = await DAO.aggregateData(STUDENT_MODEL, aggregate);
 
     console.log("Found students:", students);
 
@@ -31,7 +57,7 @@ const sendReminderEmails = async () => {
     for (const student of students) {
       const monthKey = `${today.getFullYear()}-${today.getMonth() + 1}`;
 
-      const existingPayment = await DAO.findOneData(PAYMENT_MODEL, {
+      const existingPayment = await DAO.getOneData(PAYMENT_MODEL, {
         studentId: student?.userId,
         month: monthKey,
         status: { $in: ["pending", "completed"] },
@@ -83,12 +109,13 @@ const sendReminderEmails = async () => {
     // ✅ Step 5: Render email template with student name
     for (const student of students) {
       const htmlContent = await ejs.renderFile(templatePath, {
-        name: student.name,
+        name: student.user.name,
+        websiteLink : "https://librayr.vercel.app",
       });
-      await sendEmail(student.email, "Payment Reminder", htmlContent);
+      await sendEmail(student.user.email, "Payment Reminder", htmlContent);
     }
   } catch (error) {
-    logger.error("Error sending reminder emails:", error);
+    console.error("Error sending reminder emails:", error);
   }
 };
 

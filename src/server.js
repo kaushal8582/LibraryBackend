@@ -12,7 +12,7 @@ connectDB();
 
 // Cron jobs will be initialized later
 
-sendReminderEmails();
+// sendReminderEmails();
 
 // Commented out for initial development
 // const { scheduleReminderJob } = require('./utils/cronJobs');

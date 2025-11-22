@@ -11,3 +11,8 @@
 {"level":"error","message":"Error: Cannot read properties of undefined (reading 'message')","service":"libtrack-backend","timestamp":"2025-11-17 20:41:27"}
 {"level":"error","message":"Error: Cannot read properties of undefined (reading 'message')","service":"libtrack-backend","timestamp":"2025-11-17 20:41:27"}
 {"level":"error","message":"Error: Cannot read properties of undefined (reading 'message')","service":"libtrack-backend","timestamp":"2025-11-17 20:41:27"}
+{"level":"error","message":"Error: Cannot read properties of undefined (reading 'message')","service":"libtrack-backend","timestamp":"2025-11-20 18:47:46"}
+{"level":"error","message":"Error: Cannot read properties of undefined (reading 'message')","service":"libtrack-backend","timestamp":"2025-11-20 18:47:46"}
+{"level":"error","message":"Error: Cannot read properties of undefined (reading 'message')","service":"libtrack-backend","timestamp":"2025-11-20 18:47:46"}
+{"level":"error","message":"Error: Cannot read properties of undefined (reading 'message')","service":"libtrack-backend","timestamp":"2025-11-20 18:47:46"}
+{"level":"error","message":"Unhandled Rejection: logger is not defined","service":"libtrack-backend","timestamp":"2025-11-20 23:06:06"}
