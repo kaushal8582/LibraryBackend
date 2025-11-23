@@ -188,6 +188,9 @@ const getPaymentsByStudent = async (studentId) => {
         },
       },
       {
+        $sort: { createdAt: -1 },
+      },
+      {
         $group: {
           _id: null,
           payments: { $push: "$$ROOT" },
@@ -241,15 +244,16 @@ const getPaymentsByLibrary = async (libraryId, lastDays = 30,limit=25,skip=0) =>
     {
       $match: matchQuery,
     },
+     {
+      $sort: { createdAt: -1 },
+    },
     {
       $skip: Number(skip)*Number(limit),
     },
     {
       $limit: Number(limit),
     },
-    {
-      $sort: { createdAt: -1 },
-    },
+   
     {
       $lookup: {
         from: "students",
@@ -309,6 +313,7 @@ const getPaymentsByLibrary = async (libraryId, lastDays = 30,limit=25,skip=0) =>
           name: "$user.name",
           email: "$user.email",
           phone: "$user.phone",
+          avtar :"$user.avtar"
         },
       },
     },
@@ -439,6 +444,10 @@ const makePaymentInCash = async (paymentDate, numberOfMonths, studentId) => {
     }
 
     // 🟩 STEP 3: If still months left, create advance payments
+
+    console.log("monthsLeft ", monthsLeft);
+
+
     if (monthsLeft > 0) {
       for (let i = 0; i < monthsLeft; i++) {
         const student = await DAO.getOneData(STUDENT_MODEL, {
@@ -455,6 +464,8 @@ const makePaymentInCash = async (paymentDate, numberOfMonths, studentId) => {
           paymentDate: today,
           month: student.nextDueDate.toISOString().slice(0, 7),
         });
+
+        console.log("created new payment ", newPayment);
 
         const current = new Date(student.nextDueDate);
 

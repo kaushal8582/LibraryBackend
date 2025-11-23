@@ -59,9 +59,9 @@ const getPaymentsByStudent = async (req, res) => {
 const getPaymentsByLibrary = async (req, res) => {
   try {
     const { libraryId } = req.params;
-    const {lastDays,limit,page} =  req.query || {lastDays:30};
-    console.log("lastDays,limit,skip",lastDays,limit,page);
-    const result = await paymentService.getPaymentsByLibrary(libraryId,lastDays,limit,page);
+    const {lastDays,limit,skip} =  req.query || {lastDays:30,limit:25,skip:0};
+    console.log("lastDays,limit,skip",lastDays,limit,skip);
+    const result = await paymentService.getPaymentsByLibrary(libraryId,lastDays,limit,skip);
     
     return successResponse(res, 'Payments retrieved successfully', result);
   } catch (error) {

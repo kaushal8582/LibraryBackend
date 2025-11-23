@@ -180,6 +180,7 @@ const userInfo = async (userId) => {
           lastLogin: 1,
           createdAt: 1,
           libraryId: 1,
+          avtar : 1,
 
           // library info
           "libraryData._id": 1,

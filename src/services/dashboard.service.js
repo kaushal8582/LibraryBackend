@@ -12,60 +12,47 @@ const {
 // Get library dashboard summary
 const getLibrarySummary = async (libraryId, month = null) => {
   try {
-    // If no month provided, use current month
-    const targetMonth = month || new Date().toISOString().slice(0, 7);
-
     // Validate library exists
     const library = await DAO.getOneData(LIBRARY_MODEL, { _id: libraryId });
-    if (!library) {
-      throw new Error("Library not found");
+    if (!library) throw new Error("Library not found");
+
+    const paymentStatsMatch = {
+      libraryId: new mongoose.Types.ObjectId(libraryId),
+      ...(month ? { month } : {}),
+    };
+
+    // ⭐ Calculate date range for student joinDate (based on selected month)
+    let studentMatch = { libraryId: new mongoose.Types.ObjectId(libraryId) };
+
+    if (month) {
+      const [year, monthNumber] = month.split("-").map(Number);
+
+      const startDate = new Date(year, monthNumber - 1, 1);
+      const endDate = new Date(year, monthNumber, 1); // next month start
+
+      studentMatch.joinDate = { $gte: startDate, $lt: endDate };
     }
 
-    // Get total students in library for the specified month
-    const studentCountQuery = {
-      libraryId: new mongoose.Types.ObjectId(libraryId),
-    };
-
-    const totalStudents = await DAO.count(STUDENT_MODEL, studentCountQuery);
-
-    // Get payment statistics
-    const paymentStatsQuery = {
-      libraryId: new mongoose.Types.ObjectId(libraryId),
-      month: targetMonth,
-    };
+    // ⭐ Total students (filtered by month if provided)
+    const totalStudents = await DAO.count(STUDENT_MODEL, studentMatch);
 
     const paymentStats = await DAO.aggregateData(PAYMENT_MODEL, [
-      {
-        $match: paymentStatsQuery,
-      },
+      { $match: paymentStatsMatch },
       {
         $group: {
           _id: null,
           totalPending: {
-            $sum: {
-              $cond: [{ $eq: ["$status", "pending"] }, "$amount", 0],
-            },
+            $sum: { $cond: [{ $eq: ["$status", "pending"] }, "$amount", 0] },
           },
           totalPaid: {
-            $sum: {
-              $cond: [{ $eq: ["$status", "completed"] }, "$amount", 0],
-            },
+            $sum: { $cond: [{ $eq: ["$status", "completed"] }, "$amount", 0] },
           },
           totalRevenue: {
-            $sum: {
-              $cond: [{ $eq: ["$status", "completed"] }, "$amount", 0],
-            },
+            $sum: { $cond: [{ $eq: ["$status", "completed"] }, "$amount", 0] },
           },
         },
       },
-      {
-        $project: {
-          _id: 0,
-          totalPending: 1,
-          totalPaid: 1,
-          totalRevenue: 1,
-        },
-      },
+      { $project: { _id: 0 } },
     ]);
 
     const stats = paymentStats[0] || {
@@ -74,11 +61,10 @@ const getLibrarySummary = async (libraryId, month = null) => {
       totalRevenue: 0,
     };
 
-    // 🧮 Monthly Revenue — with month name like "Nov", "Dec"
+    // ⭐ Monthly revenue always last 6 months (unchanged)
     const now = new Date();
-    const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1); // start from 6 months ago
+    const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
 
-    // Step 1️⃣: Get revenue data for the last 6 months
     const rawMonthlyData = await DAO.aggregateData(PAYMENT_MODEL, [
       {
         $match: {
@@ -106,13 +92,11 @@ const getLibrarySummary = async (libraryId, month = null) => {
       },
     ]);
 
-    // Step 2️⃣: Create a map for quick lookup
     const revenueMap = new Map();
     rawMonthlyData.forEach((item) => {
       revenueMap.set(`${item.year}-${item.monthNumber}`, item.revenue);
     });
 
-    // Step 3️⃣: Generate last 6 months array (fill missing with 0)
     const monthNames = [
       "Jan",
       "Feb",
@@ -132,11 +116,9 @@ const getLibrarySummary = async (libraryId, month = null) => {
     for (let i = 5; i >= 0; i--) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const key = `${date.getFullYear()}-${date.getMonth() + 1}`;
-      const revenue = revenueMap.get(key) || 0;
-
       monthlyRevenue.push({
         month: monthNames[date.getMonth()],
-        revenue,
+        revenue: revenueMap.get(key) || 0,
       });
     }
 
@@ -145,7 +127,7 @@ const getLibrarySummary = async (libraryId, month = null) => {
       totalPendingPayments: stats.totalPending,
       totalPaidPayments: stats.totalPaid,
       totalRevenue: stats.totalRevenue,
-      monthlyRevenue: monthlyRevenue,
+      monthlyRevenue,
     };
   } catch (error) {
     throw new Error(`Failed to get library summary: ${error.message}`);

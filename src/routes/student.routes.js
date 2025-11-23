@@ -1,11 +1,18 @@
-'use strict';
+"use strict";
 
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const studentController = require('../controllers/student.controller');
-const validateRequest = require('../middleware/validateRequest');
-const { createStudentSchema, updateStudentSchema } = require('../validators/student.validator');
-const { protect, adminOrLibrarianOnly } = require('../middleware/auth.middleware');
+const studentController = require("../controllers/student.controller");
+const validateRequest = require("../middleware/validateRequest");
+const {
+  createStudentSchema,
+  updateStudentSchema,
+} = require("../validators/student.validator");
+const {
+  protect,
+  adminOrLibrarianOnly,
+} = require("../middleware/auth.middleware");
+const { upload } = require("../middleware/multer.middleware");
 
 /**
  * @swagger
@@ -31,7 +38,13 @@ const { protect, adminOrLibrarianOnly } = require('../middleware/auth.middleware
  *       500:
  *         description: Server error
  */
-router.post('/', protect, adminOrLibrarianOnly, validateRequest(createStudentSchema), studentController.createStudent);
+router.post(
+  "/",
+  protect,
+  adminOrLibrarianOnly,
+  validateRequest(createStudentSchema),
+  studentController.createStudent
+);
 
 /**
  * @swagger
@@ -55,7 +68,12 @@ router.post('/', protect, adminOrLibrarianOnly, validateRequest(createStudentSch
  *       500:
  *         description: Server error
  */
-router.get('/', protect, adminOrLibrarianOnly, studentController.getAllStudents);
+router.get(
+  "/",
+  protect,
+  adminOrLibrarianOnly,
+  studentController.getAllStudents
+);
 
 /**
  * @swagger
@@ -82,7 +100,12 @@ router.get('/', protect, adminOrLibrarianOnly, studentController.getAllStudents)
  *       500:
  *         description: Server error
  */
-router.get('/:id', protect, adminOrLibrarianOnly, studentController.getStudentById);
+router.get(
+  "/:id",
+  protect,
+  adminOrLibrarianOnly,
+  studentController.getStudentById
+);
 
 /**
  * @swagger
@@ -117,7 +140,18 @@ router.get('/:id', protect, adminOrLibrarianOnly, studentController.getStudentBy
  *       500:
  *         description: Server error
  */
-router.put('/:id', protect, adminOrLibrarianOnly, validateRequest(updateStudentSchema), studentController.updateStudent);
+router.put(
+  "/:id",
+  protect,
+//   validateRequest(updateStudentSchema),
+  upload.fields([
+    {
+      name: "profileImg",
+      maxCount: 1,
+    },
+  ]),
+  studentController.updateStudent
+);
 
 /**
  * @swagger
@@ -144,6 +178,11 @@ router.put('/:id', protect, adminOrLibrarianOnly, validateRequest(updateStudentS
  *       500:
  *         description: Server error
  */
-router.delete('/:id', protect, adminOrLibrarianOnly, studentController.deleteStudent);
+router.delete(
+  "/:id",
+  protect,
+  adminOrLibrarianOnly,
+  studentController.deleteStudent
+);
 
 module.exports = router;

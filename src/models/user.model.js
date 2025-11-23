@@ -30,6 +30,10 @@ const userSchema = new mongoose.Schema({
     enum: ['admin', 'librarian', 'student'],
     required : true,
   },
+  avtar :{
+    type :String,
+    default : "",
+  },
   phone: {
     type: String,
     trim: true

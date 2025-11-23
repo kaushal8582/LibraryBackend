@@ -13,6 +13,7 @@ const mongoose = require("mongoose");
 const ejs = require("ejs");
 const path = require("path");
 const sendEmail = require("../utils/sendMail");
+const { default: uploadOnCloudinary } = require("../utils/cloudinary");
 
 /**
  * Create a new student
@@ -229,28 +230,39 @@ const getStudentById = async (id) => {
  * @param {Object} updateData - Data to update
  * @returns {Promise<Object>} Updated student
  */
-const updateStudent = async (id, updateData) => {
+const updateStudent = async (id, updateData,req) => {
   try {
+
     const student = await DAO.getOneData(STUDENT_MODEL, { _id: id });
+    const userData = await DAO.getOneData(USER_MODEL, { _id: student?.userId });
 
     if (!student) {
       throw new AppError("Student not found", 404, "STUDENT_NOT_FOUND");
     }
-
+    const files = req.files?.profileImg?.[0] || null;
     const userModalUpdate = {
-      name: updateData.name,
-      email: updateData.email,
-      phone: updateData.phone,
+      name:  updateData.name ? updateData.name : userData?.name,
+      email: updateData.email ? updateData.email : userData?.email,
+      phone: updateData.phone ? updateData.phone : userData?.phone,
     };
+
+  
+    if(files){
+      const cloudinaryResponse = await uploadOnCloudinary(files.path);
+      if(!cloudinaryResponse){
+        throw new AppError("Error while uploading file on cloudinary", 400, "FILE_UPLOAD_ERROR");
+      }
+      userModalUpdate.avtar = cloudinaryResponse.url;
+    }
 
     await DAO.updateData(USER_MODEL, { _id: student?.userId }, userModalUpdate);
 
     const payload = {
-      joinDate: updateData?.joinDate,
-      address: updateData?.address,
-      fee: updateData?.fee,
-      timing: updateData?.timing,
-      status: updateData?.status.toLowerCase(),
+      joinDate: updateData?.joinDate ? new Date(updateData?.joinDate) : student?.joinDate,
+      address: updateData?.address ? updateData?.address : student?.address,
+      fee: updateData?.fee ? updateData?.fee : student?.fee,
+      timing: updateData?.timing ? updateData?.timing : student?.timing,
+      status: updateData?.status ? updateData?.status.toLowerCase() : student?.status,
     };
 
     return DAO.updateData(STUDENT_MODEL, { _id: id }, payload);

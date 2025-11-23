@@ -61,7 +61,7 @@ const getStudentById = async (req, res) => {
  */
 const updateStudent = async (req, res) => {
   try {
-    const student = await studentService.updateStudent(req.params.id, req.body);
+    const student = await studentService.updateStudent(req.params.id, req.body,req);
     successResponse(res, 'Student updated successfully', student);
   } catch (error) {
     errorResponse(res, error.message, error.statusCode || 400);
@@ -81,6 +81,7 @@ const deleteStudent = async (req, res) => {
     errorResponse(res, error.message, error.statusCode || 400);
   }
 };
+
 
 module.exports = {
   createStudent,

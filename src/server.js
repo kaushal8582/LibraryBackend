@@ -1,7 +1,7 @@
 'use strict';
 
 const app = require('./app');
-const { PORT } = require('./config/env');
+
 const logger = require('./config/logger');
 const connectDB = require('./config/db');
 
@@ -9,6 +9,9 @@ const connectDB = require('./config/db');
 const { sendReminderEmails } = require('./services/cronService');
 // Connect to database
 connectDB();
+
+const PORT = process.env.PORT || 5002;
+
 
 // Cron jobs will be initialized later
 
@@ -19,8 +22,8 @@ connectDB();
 // scheduleReminderJob();
 
 // Start server - force port 5002 to avoid conflicts
-const server = app.listen(5002, () => {
-  logger.info(`Server running in ${process.env.NODE_ENV} mode on port 5002`);
+const server = app.listen(PORT, () => {
+  logger.info(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
 });
 
 // Handle unhandled promise rejections
