@@ -36,7 +36,7 @@ const createStudent = async (studentData, loggedInUser) => {
       );
     }
 
-    const password = Math.random().toString(36).slice(-8); // inFuture update with Random Password Generator
+    const password = Math.random().toString(36).slice(-8); 
     const hashPassword = await bcrypt.hash(password, 10);
 
     const userPayload = {
@@ -74,6 +74,8 @@ const createStudent = async (studentData, loggedInUser) => {
     if (!student) {
       throw new AppError("Student not created", 400, "STUDENT_NOT_CREATED");
     }
+
+    console.log("student created successfully ");
 
     const templatePath = path.join(__dirname, "..", "views", "welcome.ejs");
 
