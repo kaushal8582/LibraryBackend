@@ -325,12 +325,7 @@ const getPaymentsByLibrary = async (libraryId, lastDays = 30,limit=25,skip=0) =>
   const payments = await DAO.aggregateData(PAYMENT_MODEL, aggregate);
   const totalPayments = await DAO.count(PAYMENT_MODEL, matchQuery);
 
-  // console.log("payments ", payments);
-  // console.log("totalPayments ", totalPayments);
-
-  if (!payments || payments.length === 0) {
-    throw new Error("No payments found for this library");
-  }
+  
 
   return {
     payments,
