@@ -6,6 +6,7 @@ module.exports = {
   NODE_ENV: process.env.NODE_ENV || 'development',
   PORT: process.env.PORT || 5001, // Changed to 5001 to avoid port conflict
   MONGODB_URI: process.env.MONGODB_URI || 'mongodb://localhost:27017/libtrack',
+  CLIENT_URL:process.env.CLIENT_UR || "http://localhost:3000",
   JWT_SECRET: process.env.JWT_SECRET,
   JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET,
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '1d',
@@ -20,5 +21,7 @@ module.exports = {
   TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN,
   TWILIO_PHONE_NUMBER: process.env.TWILIO_PHONE_NUMBER,
   EMAIL_USER: process.env.EMAIL_USER,
-  EMAIL_PASS: process.env.EMAIL_PASS
+  EMAIL_PASS: process.env.EMAIL_PASS,
+
+  UPSTASH_REDIS_CONN:process.env.UPSTASH_REDIS_CONN
 };

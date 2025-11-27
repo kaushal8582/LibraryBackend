@@ -99,4 +99,9 @@ router.post('/refresh-token', validateRequest(refreshTokenSchema), authControlle
 router.get("/info",protect,authController.getInfo)
 router.post("/update-password", validateRequest(updatePasswordSchema), protect,authController.updatePassword)
 
+
+
+router.post('/forgot-password',authController.forgetPassword)
+router.post('/reset-password',authController.resetPassword)
+
 module.exports = router;

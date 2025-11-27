@@ -20,3 +20,10 @@
 {"level":"error","message":"Error: Cannot read properties of undefined (reading 'message')","service":"libtrack-backend","timestamp":"2025-11-22 21:28:18"}
 {"level":"error","message":"Error: Cannot read properties of undefined (reading 'message')","service":"libtrack-backend","timestamp":"2025-11-22 21:28:18"}
 {"level":"error","message":"Error: Cannot read properties of undefined (reading 'message')","service":"libtrack-backend","timestamp":"2025-11-22 21:28:18"}
+{"level":"error","message":"Error connecting to MongoDB: querySrv ECONNREFUSED _mongodb._tcp.cluster0.hjwghqx.mongodb.net","service":"libtrack-backend","timestamp":"2025-11-26 18:35:18"}
+{"level":"error","message":"Error connecting to MongoDB: querySrv ECONNREFUSED _mongodb._tcp.cluster0.hjwghqx.mongodb.net","service":"libtrack-backend","timestamp":"2025-11-26 18:35:35"}
+{"level":"error","message":"Unhandled Rejection: Error: Invalid token request new link.","service":"libtrack-backend","timestamp":"2025-11-27 16:16:00"}
+{"level":"error","message":"Unhandled Rejection: Error: Invalid token request new link.","service":"libtrack-backend","timestamp":"2025-11-27 16:17:28"}
+{"level":"error","message":"Unhandled Rejection: body is not defined","service":"libtrack-backend","timestamp":"2025-11-27 16:19:07"}
+{"level":"error","message":"Unhandled Rejection: Error: Invalid token request new link.","service":"libtrack-backend","timestamp":"2025-11-27 16:19:35"}
+{"level":"error","message":"Unhandled Rejection: Error: Invalid link. Please request a new one to proceed","service":"libtrack-backend","timestamp":"2025-11-27 16:20:38"}

@@ -3,7 +3,7 @@
 const authService = require('../services/auth.service');
 const { successResponse, errorResponse } = require('../utils/responseHandler');
 const sendEmail = require('../utils/sendMail');
-
+const redisClient = require("../lib/redis")
 // Register controller
 const register = async (req, res) => {
   try {
@@ -60,6 +60,38 @@ const updatePassword = async (req, res) => {
   }
 };
 
+const forgetPassword = async (req,res)=>{
+  try {
+
+    const {email} = req.body;
+    if(!email)
+      throw new Error("email is required");
+
+    const result = await authService.forgotPassword(email);
+
+return successResponse(res, 'successfully', result);
+    
+  } catch (error) {
+     return errorResponse(res, error.message, 400);
+  }
+
+}
+
+
+
+const resetPassword = async (req,res)=>{
+  try {
+    const {token,password} = req.body;
+
+    console.log(req.body);
+
+    const result = await authService.resetPassword(token,password);
+     return successResponse(res, 'Password reseted successfully', result);    
+  } catch (error) {
+    return errorResponse(res, error.message, 400);
+  }
+}
+
 
 
 module.exports = {
@@ -68,4 +100,6 @@ module.exports = {
   refreshToken,
   getInfo,
   updatePassword,
+  forgetPassword,
+  resetPassword
 };
