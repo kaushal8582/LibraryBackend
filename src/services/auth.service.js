@@ -9,10 +9,10 @@ const mongoose = require("mongoose");
 const ejs = require("ejs");
 const path = require("path");
 const sendEmail = require("../utils/sendMail");
-const generateOTP = require("../lib/generateOTP")
-const crypto = require('crypto')
+const generateOTP = require("../lib/generateOTP");
+const crypto = require("crypto");
 const redisClient = require("../lib/redis");
-const config = require("../config/env")
+const config = require("../config/env");
 // Register user
 const register = async (userData) => {
   // Check if user already exists
@@ -183,7 +183,7 @@ const userInfo = async (userId) => {
           lastLogin: 1,
           createdAt: 1,
           libraryId: 1,
-          avtar : 1,
+          avtar: 1,
 
           // library info
           "libraryData._id": 1,
@@ -251,71 +251,60 @@ const updatePassword = async (oldPassword, newPassword, userId) => {
   }
 };
 
-const forgotPassword = async (email)=>{
+const forgotPassword = async (email) => {
+ 
   try {
+    const user = await DAO.getOneData(USER_MODEL, { email });
 
-    const user = await DAO.getOneData(USER_MODEL,{email});
-
-    if(!user)
-        throw new Error("Email not registered please enter valid email.");
-
+    if (!user)
+      throw new Error("Email not registered please enter valid email.");
 
     const token = crypto.randomBytes(32).toString("hex");
 
-    await redisClient.set(`forgot-password:${token}`,email,"EX",300);
+    await redisClient.set(`forgot-password:${token}`, email, "EX", 300);
 
-    const link = `${config.CLIENT_URL}/auth/forget-pwd/?token=${token}`
+    const link = `${config.CLIENT_URL}/auth/reset-password/?token=${token}`;
 
- const templatePath = path.join(__dirname, "..", "views", "forgotPassword.ejs");
+    const templatePath = path.join(
+      __dirname,
+      "..",
+      "views",
+      "forgotPassword.ejs"
+    );
 
-       const htmlContent = await ejs.renderFile(templatePath, {
-          name: user.name,
-          resetLink:link,
-        });
-    
+    const htmlContent = await ejs.renderFile(templatePath, {
+      name: user.name,
+      resetLink: link,
+    });
 
-    await sendEmail(email,"Forget password",htmlContent);
+    await sendEmail(email, "Forget password", htmlContent);
 
-    return "We have successfully sent reset link in registered email."
-
+    return "We have successfully sent reset link in registered email.";
   } catch (error) {
-    throw new Error(error.message)
+    throw new Error(error.message);
   }
-
 };
 
-
-const resetPassword = async (token,password)=> {
+const resetPassword = async (token, password) => {
   try {
+    if (!token) throw new Error("Invalid token request new link.");
 
-
-    if(!token)
-      throw new Error("Invalid token request new link.");
-
-    if(!password)
-      throw new Error("Password is required")
+    if (!password) throw new Error("Password is required");
 
     const email = await redisClient.get(`forgot-password:${token}`);
 
-    if(!email) throw new Error("Invalid link. Please request a new one to proceed");
+    if (!email)
+      throw new Error("Invalid link. Please request a new one to proceed");
 
-    const hashedPassword = await bcrypt.hash(password,10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-     await DAO.updateData(
-      USER_MODEL,
-      {email},
-      { password: hashedPassword }
-    );
+    await DAO.updateData(USER_MODEL, { email }, { password: hashedPassword });
 
-        return "Password has been reseted."
-    
+    return "Password has been reseted.";
   } catch (error) {
-    throw new Error(error)
+    throw new Error(error);
   }
-}
-
-
-
+};
 
 module.exports = {
   register,
@@ -324,5 +313,5 @@ module.exports = {
   userInfo,
   updatePassword,
   forgotPassword,
-  resetPassword
+  resetPassword,
 };
