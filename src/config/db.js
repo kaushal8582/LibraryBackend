@@ -1,8 +1,11 @@
 'use strict';
 
 const mongoose = require('mongoose');
-const { MONGODB_URI } = require('./env');
+const { MONGODB_URI,NODE_ENV } = require('./env');
 const logger = require('./logger');
+
+
+const URI = NODE_ENV === 'development' ? "mongodb://localhost:27017/libtrack" : MONGODB_URI
 
 const connectDB = async () => {
   try {
