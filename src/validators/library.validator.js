@@ -25,6 +25,8 @@ const updateLibrarySchema = Joi.object({
   address: Joi.string().trim().optional(),
   contactEmail : Joi.string().email().trim().required(),
   contactPhone : Joi.string().trim().required(),
+  userName : Joi.string().trim().optional(),
+  profileImg : Joi.string().trim().optional(),
 });
 
 module.exports = {

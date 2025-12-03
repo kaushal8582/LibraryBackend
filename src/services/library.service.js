@@ -1,7 +1,7 @@
 'use strict';
 
 const DAO = require('../dao');
-const { LIBRARY_MODEL } = require('../utils/constants');
+const { LIBRARY_MODEL, USER_MODEL } = require('../utils/constants');
 const ERROR_CODES = require('../utils/errorCodes');
 
 // Create library
@@ -36,7 +36,24 @@ const getLibraryById = async (id) => {
 
 // Update library
 const updateLibrary = async (id, libraryData) => {
+  const {userName,profileImg} =libraryData
   const library = await DAO.getOneData(LIBRARY_MODEL, { _id: id });
+  const LibrarianData = await DAO.getOneData(USER_MODEL,{libraryId:id,role:'librarian'});
+  if(!LibrarianData){
+    throw new Error("User Not Found");
+  }
+
+  const updateData = {};
+
+  if(userName){
+    updateData.name = userName;
+  }
+  
+  if(profileImg){
+    updateData.avtar = profileImg;
+  }
+
+  const updateResult = await DAO.updateData(USER_MODEL, { _id: LibrarianData._id }, updateData);
   
   if (!library) {
     throw new Error(ERROR_CODES.LIBRARY_NOT_FOUND.message);
