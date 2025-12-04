@@ -1,0 +1,57 @@
+{"level":"info","message":"Swagger docs available at http://localhost:5002/api-docs","service":"libtrack-backend","timestamp":"2025-11-29 19:57:06"}
+{"level":"info","message":"Server running in development mode on port 5002","service":"libtrack-backend","timestamp":"2025-11-29 19:57:06"}
+{"level":"info","message":"MongoDB Connected: ac-92t9usp-shard-00-01.hjwghqx.mongodb.net","service":"libtrack-backend","timestamp":"2025-11-29 19:57:11"}
+{"level":"error","message":"Error: Cannot read properties of undefined (reading 'message')","service":"libtrack-backend","timestamp":"2025-11-29 19:57:18"}
+{"level":"error","message":"Error: Cannot read properties of undefined (reading 'message')","service":"libtrack-backend","timestamp":"2025-11-29 19:57:18"}
+{"level":"error","message":"Error: Cannot read properties of undefined (reading 'message')","service":"libtrack-backend","timestamp":"2025-11-29 19:57:18"}
+{"level":"error","message":"Error: Cannot read properties of undefined (reading 'message')","service":"libtrack-backend","timestamp":"2025-11-29 19:57:19"}
+{"level":"info","message":"Swagger docs available at http://localhost:5002/api-docs","service":"libtrack-backend","timestamp":"2025-11-29 20:06:47"}
+{"level":"info","message":"Server running in development mode on port 5002","service":"libtrack-backend","timestamp":"2025-11-29 20:06:47"}
+{"level":"info","message":"MongoDB Connected: ac-92t9usp-shard-00-01.hjwghqx.mongodb.net","service":"libtrack-backend","timestamp":"2025-11-29 20:06:54"}
+{"level":"info","message":"Swagger docs available at http://localhost:5002/api-docs","service":"libtrack-backend","timestamp":"2025-11-29 20:07:04"}
+{"level":"info","message":"Server running in development mode on port 5002","service":"libtrack-backend","timestamp":"2025-11-29 20:07:04"}
+{"level":"info","message":"MongoDB Connected: ac-92t9usp-shard-00-02.hjwghqx.mongodb.net","service":"libtrack-backend","timestamp":"2025-11-29 20:07:05"}
+{"level":"info","message":"Swagger docs available at http://localhost:5002/api-docs","service":"libtrack-backend","timestamp":"2025-11-29 20:07:29"}
+{"level":"info","message":"Server running in development mode on port 5002","service":"libtrack-backend","timestamp":"2025-11-29 20:07:29"}
+{"level":"info","message":"MongoDB Connected: ac-92t9usp-shard-00-01.hjwghqx.mongodb.net","service":"libtrack-backend","timestamp":"2025-11-29 20:07:31"}
+{"level":"info","message":"Swagger docs available at http://localhost:5002/api-docs","service":"libtrack-backend","timestamp":"2025-12-01 17:33:34"}
+{"level":"info","message":"Server running in development mode on port 5002","service":"libtrack-backend","timestamp":"2025-12-01 17:33:34"}
+{"level":"info","message":"MongoDB Connected: ac-92t9usp-shard-00-00.hjwghqx.mongodb.net","service":"libtrack-backend","timestamp":"2025-12-01 17:33:39"}
+{"level":"info","message":"Swagger docs available at http://localhost:5002/api-docs","service":"libtrack-backend","timestamp":"2025-12-02 17:38:45"}
+{"level":"info","message":"Server running in development mode on port 5002","service":"libtrack-backend","timestamp":"2025-12-02 17:38:45"}
+{"level":"info","message":"MongoDB Connected: ac-92t9usp-shard-00-01.hjwghqx.mongodb.net","service":"libtrack-backend","timestamp":"2025-12-02 17:38:50"}
+{"level":"info","message":"Swagger docs available at http://localhost:5002/api-docs","service":"libtrack-backend","timestamp":"2025-12-02 19:41:07"}
+{"level":"info","message":"Server running in development mode on port 5002","service":"libtrack-backend","timestamp":"2025-12-02 19:41:07"}
+{"level":"info","message":"MongoDB Connected: ac-92t9usp-shard-00-01.hjwghqx.mongodb.net","service":"libtrack-backend","timestamp":"2025-12-02 19:41:09"}
+{"level":"info","message":"Swagger docs available at http://localhost:5002/api-docs","service":"libtrack-backend","timestamp":"2025-12-02 19:41:32"}
+{"level":"info","message":"Server running in development mode on port 5002","service":"libtrack-backend","timestamp":"2025-12-02 19:41:32"}
+{"level":"info","message":"MongoDB Connected: ac-92t9usp-shard-00-00.hjwghqx.mongodb.net","service":"libtrack-backend","timestamp":"2025-12-02 19:41:33"}
+{"level":"info","message":"Swagger docs available at http://localhost:5002/api-docs","service":"libtrack-backend","timestamp":"2025-12-02 19:41:35"}
+{"level":"info","message":"Server running in development mode on port 5002","service":"libtrack-backend","timestamp":"2025-12-02 19:41:35"}
+{"level":"info","message":"MongoDB Connected: ac-92t9usp-shard-00-01.hjwghqx.mongodb.net","service":"libtrack-backend","timestamp":"2025-12-02 19:41:36"}
+{"level":"info","message":"Swagger docs available at http://localhost:5002/api-docs","service":"libtrack-backend","timestamp":"2025-12-02 19:41:38"}
+{"level":"info","message":"Server running in development mode on port 5002","service":"libtrack-backend","timestamp":"2025-12-02 19:41:38"}
+{"level":"info","message":"MongoDB Connected: ac-92t9usp-shard-00-02.hjwghqx.mongodb.net","service":"libtrack-backend","timestamp":"2025-12-02 19:41:39"}
+{"level":"info","message":"Swagger docs available at http://localhost:5002/api-docs","service":"libtrack-backend","timestamp":"2025-12-02 19:41:47"}
+{"level":"info","message":"Server running in development mode on port 5002","service":"libtrack-backend","timestamp":"2025-12-02 19:41:47"}
+{"level":"info","message":"MongoDB Connected: ac-92t9usp-shard-00-00.hjwghqx.mongodb.net","service":"libtrack-backend","timestamp":"2025-12-02 19:41:48"}
+{"level":"info","message":"Swagger docs available at http://localhost:5002/api-docs","service":"libtrack-backend","timestamp":"2025-12-02 19:41:49"}
+{"level":"info","message":"Server running in development mode on port 5002","service":"libtrack-backend","timestamp":"2025-12-02 19:41:49"}
+{"level":"info","message":"MongoDB Connected: ac-92t9usp-shard-00-01.hjwghqx.mongodb.net","service":"libtrack-backend","timestamp":"2025-12-02 19:41:50"}
+{"level":"info","message":"Swagger docs available at http://localhost:5002/api-docs","service":"libtrack-backend","timestamp":"2025-12-02 21:22:28"}
+{"level":"info","message":"Server running in development mode on port 5002","service":"libtrack-backend","timestamp":"2025-12-02 21:22:28"}
+{"level":"info","message":"MongoDB Connected: ac-92t9usp-shard-00-01.hjwghqx.mongodb.net","service":"libtrack-backend","timestamp":"2025-12-02 21:22:29"}
+{"level":"info","message":"Swagger docs available at http://localhost:5002/api-docs","service":"libtrack-backend","timestamp":"2025-12-02 21:33:24"}
+{"level":"info","message":"Server running in development mode on port 5002","service":"libtrack-backend","timestamp":"2025-12-02 21:33:24"}
+{"level":"info","message":"MongoDB Connected: ac-92t9usp-shard-00-01.hjwghqx.mongodb.net","service":"libtrack-backend","timestamp":"2025-12-02 21:33:25"}
+{"level":"info","message":"Swagger docs available at http://localhost:5002/api-docs","service":"libtrack-backend","timestamp":"2025-12-02 21:54:59"}
+{"level":"info","message":"Server running in development mode on port 5002","service":"libtrack-backend","timestamp":"2025-12-02 21:54:59"}
+{"level":"info","message":"MongoDB Connected: ac-92t9usp-shard-00-01.hjwghqx.mongodb.net","service":"libtrack-backend","timestamp":"2025-12-02 21:55:00"}
+{"level":"info","message":"Swagger docs available at http://localhost:5002/api-docs","service":"libtrack-backend","timestamp":"2025-12-02 21:55:46"}
+{"level":"info","message":"Server running in development mode on port 5002","service":"libtrack-backend","timestamp":"2025-12-02 21:55:46"}
+{"level":"info","message":"MongoDB Connected: ac-92t9usp-shard-00-01.hjwghqx.mongodb.net","service":"libtrack-backend","timestamp":"2025-12-02 21:55:47"}
+{"level":"info","message":"Swagger docs available at http://localhost:5002/api-docs","service":"libtrack-backend","timestamp":"2025-12-02 22:08:59"}
+{"level":"info","message":"Server running in development mode on port 5002","service":"libtrack-backend","timestamp":"2025-12-02 22:08:59"}
+{"level":"info","message":"MongoDB Connected: ac-92t9usp-shard-00-00.hjwghqx.mongodb.net","service":"libtrack-backend","timestamp":"2025-12-02 22:09:01"}
+{"level":"info","message":"Swagger docs available at http://localhost:5002/api-docs","service":"libtrack-backend","timestamp":"2025-12-03 10:07:17"}
+{"level":"info","message":"Server running in development mode on port 5002","service":"libtrack-backend","timestamp":"2025-12-03 10:07:17"}

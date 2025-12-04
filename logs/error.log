@@ -8,4 +8,3 @@
 {"level":"error","message":"Error: Cannot read properties of undefined (reading 'message')","service":"libtrack-backend","timestamp":"2025-11-29 19:57:18"}
 {"level":"error","message":"Error: Cannot read properties of undefined (reading 'message')","service":"libtrack-backend","timestamp":"2025-11-29 19:57:18"}
 {"level":"error","message":"Error: Cannot read properties of undefined (reading 'message')","service":"libtrack-backend","timestamp":"2025-11-29 19:57:19"}
->>>>>>> d256343e22bf873b72d5dad9be2f8de4c813fede

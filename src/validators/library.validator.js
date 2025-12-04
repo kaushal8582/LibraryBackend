@@ -21,12 +21,22 @@ const createLibrarySchema = Joi.object({
  
 // Update library validation schema
 const updateLibrarySchema = Joi.object({
-  name: Joi.string().trim().required(),
+  name: Joi.string().trim().optional(),
   address: Joi.string().trim().optional(),
-  contactEmail : Joi.string().email().trim().required(),
-  contactPhone : Joi.string().trim().required(),
+  contactEmail : Joi.string().email().trim().optional(),
+  contactPhone : Joi.string().trim().optional(),
   userName : Joi.string().trim().optional(),
   profileImg : Joi.string().trim().optional(),
+  heroImg : Joi.string().trim().optional(),
+  galleryPhotos : Joi.array().items(Joi.string().trim().optional()),
+  openingHours : Joi.string().trim().optional(),
+  closingHours : Joi.string().trim().optional(),
+  openForDays : Joi.array().items(Joi.string().trim().optional()),
+  plans : Joi.array().items(Joi.object({
+    hours : Joi.string().trim().optional(),
+    price : Joi.string().trim().optional(),
+  })).optional(),
+  facilities : Joi.array().items(Joi.string().trim().optional()),
 });
 
 module.exports = {

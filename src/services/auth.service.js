@@ -195,6 +195,13 @@ const userInfo = async (userId) => {
           "libraryData.isActive": 1,
           "libraryData.createdAt": 1,
           "libraryData.address": 1,
+          "libraryData.heroImg": 1,
+          "libraryData.galleryPhotos": 1,
+          "libraryData.openingHours": 1,
+          "libraryData.closingHours": 1,
+          "libraryData.openForDays": 1,
+          "libraryData.plans": 1,
+          "libraryData.facilities": 1,
 
           // student info
           "studentData._id": 1,
