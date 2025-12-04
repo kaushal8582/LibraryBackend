@@ -104,4 +104,5 @@ router.post("/update-password", validateRequest(updatePasswordSchema), protect,a
 router.post('/forgot-password',authController.forgetPassword)
 router.post('/reset-password',authController.resetPassword)
 
+
 module.exports = router;

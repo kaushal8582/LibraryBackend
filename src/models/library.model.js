@@ -33,6 +33,47 @@ const librarySchema = new mongoose.Schema({
   subscriptionEndDate: {
     type: Date
   },
+  heroImg:{
+    type : String,
+    default :"",
+  },
+  galleryPhotos : [
+    {
+      type : String,
+      default : ""
+    }
+  ],
+  openingHours: {
+    type: String,
+    
+  },
+  closingHours: {
+    type: String,
+    
+  },
+  openFDays: [
+    {
+      type: String,
+      enum: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
+      default: 'monday'
+    }
+  ],
+  plans:[{
+    hours : {
+      type : Number,
+      default : 0
+    },
+    price : {
+      type : Number,
+      default : 0
+    },
+  }],
+  services :[
+    {
+      type : String,
+      default : ""
+    }
+  ],
   settings: {
     reminderFrequency: {
       type: String,

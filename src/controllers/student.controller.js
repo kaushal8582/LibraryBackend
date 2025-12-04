@@ -82,11 +82,27 @@ const deleteStudent = async (req, res) => {
   }
 };
 
+/**
+ * Upload student image
+ * @param {Object} req - Request object
+ * @param {Object} res - Response object
+ */
+const uploadImg = async (req, res) => {
+  try {
+    const url = await studentService.uploadImg(req);
+    successResponse(res, 'Image uploaded successfully', url);
+  } catch (error) {
+    errorResponse(res, error.message, error.statusCode || 400);
+  }
+};
+
+
 
 module.exports = {
   createStudent,
   getAllStudents,
   getStudentById,
   updateStudent,
-  deleteStudent
+  deleteStudent,
+  uploadImg,
 };

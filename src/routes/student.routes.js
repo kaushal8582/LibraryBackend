@@ -185,4 +185,17 @@ router.delete(
   studentController.deleteStudent
 );
 
+router.post(
+  "/upload/image",
+  protect,
+//   validateRequest(updateStudentSchema),
+  upload.fields([
+    {
+      name: "img",
+      maxCount: 1,
+    },
+  ]),
+  studentController.uploadImg
+);
+
 module.exports = router;
