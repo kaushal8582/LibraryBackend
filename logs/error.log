@@ -1,5 +1,0 @@
-{"level":"error","message":"Error: Cannot read properties of undefined (reading 'message')","service":"libtrack-backend","timestamp":"2025-11-29 19:57:18"}
-{"level":"error","message":"Error: Cannot read properties of undefined (reading 'message')","service":"libtrack-backend","timestamp":"2025-11-29 19:57:18"}
-{"level":"error","message":"Error: Cannot read properties of undefined (reading 'message')","service":"libtrack-backend","timestamp":"2025-11-29 19:57:18"}
-{"level":"error","message":"Error: Cannot read properties of undefined (reading 'message')","service":"libtrack-backend","timestamp":"2025-11-29 19:57:19"}
-{"level":"error","message":"Unhandled Rejection: $sort stage must have at least one sort key","service":"libtrack-backend","timestamp":"2025-12-04 12:26:59"}
