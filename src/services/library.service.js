@@ -27,19 +27,23 @@ const getAllLibraries = async (query = {}) => {
 
 // Get library by ID
 const getLibraryById = async (id) => {
-  const library = await DAO.getOneData(LIBRARY_MODEL, { _id: id }, {
-    plans: 1,
-    name: 1,
-    address: 1,
-    contactEmail: 1,
-    contactPhone: 1,
-    heroImg: 1,
-    galleryPhotos: 1,
-    openingHours: 1,
-    closingHours: 1,
-    openForDays: 1,
-    facilities: 1,
-  });
+  const library = await DAO.getOneData(
+    LIBRARY_MODEL,
+    { _id: id },
+    {
+      plans: 1,
+      name: 1,
+      address: 1,
+      contactEmail: 1,
+      contactPhone: 1,
+      heroImg: 1,
+      galleryPhotos: 1,
+      openingHours: 1,
+      closingHours: 1,
+      openForDays: 1,
+      facilities: 1,
+    }
+  );
 
   if (!library) {
     throw new Error(ERROR_CODES.LIBRARY_NOT_FOUND.message);
@@ -145,55 +149,69 @@ const filterLibraryDataForUser = async (payload) => {
   try {
     const { searchText, facilities, name, rating, feeRange, sortBy } = payload;
 
-    const query = {};
+    const matchQuery = {};
+
     if (searchText) {
-      query.$or = [
+      matchQuery.$or = [
         { name: { $regex: searchText, $options: "i" } },
         { address: { $regex: searchText, $options: "i" } },
       ];
     }
-    if (facilities) {
-      query.facilities = { $in: facilities };
+
+    if (facilities && facilities.length > 0) {
+      matchQuery.facilities = { $in: facilities };
     }
+
     if (name) {
-      query.name = { $regex: name, $options: "i" };
+      matchQuery.name = { $regex: name, $options: "i" };
     }
+
     if (rating) {
-      query.rating = { $gte: rating };
+      matchQuery.rating = { $gte: rating };
     }
-    if (feeRange) {
-      query.$expr = {
-        $anyElementTrue: {
-          $map: {
-            input: "$plans",
-            as: "plan",
-            in: {
-              $lte: [{ $toInt: "$$plan.price" }, feeRange],
+
+    const pipeline = [
+      { $match: matchQuery },
+
+      // ⭐ Add minPrice from plans array
+      {
+        $addFields: {
+          minPrice: {
+            $min: {
+              $map: {
+                input: { $ifNull: ["$plans", []] },
+                as: "pl",
+                in: { $toInt: "$$pl.price" },
+              },
             },
           },
         },
-      };
-    }
-
-    if (sortBy) {
-      query.$sort = { [sortBy]: 1 };
-    }
-
-    const aggregateQuery = [
-      {
-        $match: query,
       },
-      // {
-      //   $sort: query.$sort || {}
-      // }
     ];
 
-    const Libraries = await DAO.aggregateData(LIBRARY_MODEL, aggregateQuery);
+    // ⭐ FILTER BY feeRange (single value)
+    //   Expecting feeRange = 300 → so minPrice <= 300
+    if (feeRange !== undefined && feeRange !== null) {
+      pipeline.push({
+        $match: {
+          minPrice: { $lte: Number(feeRange) },
+        },
+      });
+    }
+
+    // ⭐ SORTING
+    if (sortBy) {
+      pipeline.push({ $sort: { [sortBy]: 1 } });
+    }
+
+    const Libraries = await DAO.aggregateData(LIBRARY_MODEL, pipeline);
+
     return Libraries;
   } catch (error) {
     throw new Error(error.message);
   }
 };
+
 
 async function test(params) {
   const payload = {

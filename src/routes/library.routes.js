@@ -129,5 +129,6 @@ router.put('/:id', protect, adminOrLibrarianOnly, validateRequest(updateLibraryS
  *         description: Library not found
  */
 router.delete('/:id', protect, adminOnly, libraryController.deleteLibrary);
+router.post("/filter/libraries", libraryController.filterLibraries);
 
 module.exports = router;
