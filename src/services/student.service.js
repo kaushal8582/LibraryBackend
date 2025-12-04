@@ -301,8 +301,10 @@ const deleteStudent = async (id) => {
 const uploadImg = async (req) => {
   try {
     const files = req.files?.img?.[0] || null;
+    console.log("file come here ", files);
     if (files) {
       const cloudinaryResponse = await uploadOnCloudinary(files.path);
+      console.log("cloudinaryResponse", cloudinaryResponse);
       if (!cloudinaryResponse) {
         throw new AppError(
           "Error while uploading file on cloudinary",

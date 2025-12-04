@@ -51,24 +51,23 @@ const librarySchema = new mongoose.Schema({
     type: String,
     
   },
-  openFDays: [
+  openForDays: [
     {
       type: String,
-      enum: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
-      default: 'monday'
+      default: 'Monday'
     }
   ],
   plans:[{
     hours : {
-      type : Number,
-      default : 0
+      type : String,
+      default : ""
     },
     price : {
-      type : Number,
-      default : 0
+      type : String,
+      default : ""
     },
   }],
-  services :[
+  facilities :[
     {
       type : String,
       default : ""

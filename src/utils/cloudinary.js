@@ -27,10 +27,14 @@ const uploadOnCloudinary = async(localFilePath)=>{
     if (fileExtension === "pdf") {
       resourceType = "raw";
     }
+
+    console.log(resourceType,"resource type ");
     
     const response = await cloudinary.uploader.upload(localFilePath,{
       resource_type:resourceType
     })
+
+    console.log(response);
 
     
     return response;
