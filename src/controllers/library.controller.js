@@ -53,10 +53,25 @@ const deleteLibrary = async (req, res) => {
   }
 };
 
+// Filter libraries controller
+const filterLibraries = async (req, res) => {
+  try {
+
+
+    const result = await libraryService.filterLibraryDataForUser(req.body);
+    return successResponse(res, 'Libraries filtered successfully', result);
+  } catch (error) {
+    return errorResponse(res, error.message, 400);
+  }
+};
+
+
+
 module.exports = {
   createLibrary,
   getAllLibraries,
   getLibraryById,
   updateLibrary,
-  deleteLibrary
+  deleteLibrary,
+  filterLibraries
 };
