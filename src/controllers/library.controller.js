@@ -56,12 +56,19 @@ const deleteLibrary = async (req, res) => {
 // Filter libraries controller
 const filterLibraries = async (req, res) => {
   try {
-
-
     const result = await libraryService.filterLibraryDataForUser(req.body);
     return successResponse(res, 'Libraries filtered successfully', result);
   } catch (error) {
     return errorResponse(res, error.message, 400);
+  }
+};
+
+const getFeaturedLibraries = async (req, res) => {
+  try {
+    const result = await libraryService.getFeaturedLibraries();
+    return successResponse(res, 'Featured libraries retrieved successfully', result);
+  } catch (error) {
+    return errorResponse(res, error.message, 500);
   }
 };
 
@@ -73,5 +80,6 @@ module.exports = {
   getLibraryById,
   updateLibrary,
   deleteLibrary,
-  filterLibraries
+  filterLibraries,
+  getFeaturedLibraries,
 };

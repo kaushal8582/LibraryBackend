@@ -51,12 +51,20 @@ const librarySchema = new mongoose.Schema({
     type: String,
     
   },
+  aboutLibrary : {
+    type : String,
+    default : ""
+  },
   openForDays: [
     {
       type: String,
       default: 'Monday'
     }
   ],
+  Featured : {
+    type : Boolean,
+    default : false
+  },
   plans:[{
     hours : {
       type : String,

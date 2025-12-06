@@ -30,6 +30,10 @@ const userSchema = new mongoose.Schema({
     enum: ['admin', 'librarian', 'student'],
     required : true,
   },
+  bio : {
+    type : String,
+    default : "",
+  },
   avtar :{
     type :String,
     default : "",

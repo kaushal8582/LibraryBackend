@@ -3,6 +3,7 @@
 const DAO = require("../dao");
 const { LIBRARY_MODEL, USER_MODEL } = require("../utils/constants");
 const ERROR_CODES = require("../utils/errorCodes");
+const mongoose = require("mongoose");
 
 // Create library
 const createLibrary = async (libraryData) => {
@@ -26,35 +27,150 @@ const getAllLibraries = async (query = {}) => {
 };
 
 // Get library by ID
-const getLibraryById = async (id) => {
-  const library = await DAO.getOneData(
-    LIBRARY_MODEL,
-    { _id: id },
-    {
-      plans: 1,
-      name: 1,
-      address: 1,
-      contactEmail: 1,
-      contactPhone: 1,
-      heroImg: 1,
-      galleryPhotos: 1,
-      openingHours: 1,
-      closingHours: 1,
-      openForDays: 1,
-      facilities: 1,
+// const getLibraryById = async (id) => {
+//   const library = await DAO.getOneData(
+//     LIBRARY_MODEL,
+//     { _id: id },
+//     {
+//       plans: 1,
+//       name: 1,
+//       address: 1,
+//       contactEmail: 1,
+//       contactPhone: 1,
+//       heroImg: 1,
+//       galleryPhotos: 1,
+//       openingHours: 1,
+//       closingHours: 1,
+//       openForDays: 1,
+//       facilities: 1,
+//       aboutLibrary: 1,
+//     }
+//   );
+
+//   if (!library) {
+//     throw new Error(ERROR_CODES.LIBRARY_NOT_FOUND.message);
+//   }
+
+//   return library;
+// };
+
+const getLibraryById = async (libraryId) => {
+  try {
+    const objectId = new mongoose.Types.ObjectId(libraryId);
+
+    const aggregate =[
+
+      // Match library
+      { $match: { _id: objectId } },
+
+      // 1️⃣ Lookup Librarian (User with role 'librarian' and this libraryId)
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "libraryId",
+          as: "librarian",
+          pipeline: [
+            { $match: { role: "librarian" } },
+            {
+              $project: {
+                password: 0,
+                __v: 0
+              }
+            }
+          ]
+        }
+      },
+
+      // 2️⃣ Lookup Reviews
+      {
+        $lookup: {
+          from: "reviews",
+          localField: "_id",
+          foreignField: "libraryId",
+          as: "reviews",
+          pipeline: [
+            { $match: { isDeleted: false } },
+            {
+              $lookup: {
+                from: "users",
+                localField: "userId",
+                foreignField: "_id",
+                as: "userDetails",
+                pipeline: [
+                  {
+                    $project: {
+                      password: 0,
+                      __v: 0,
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              $addFields: {
+                userDetails: { $arrayElemAt: ["$userDetails", 0] }
+              }
+            }
+          ]
+        }
+      },
+
+      // 3️⃣ Add rating summary
+      {
+        $addFields: {
+          totalReviews: { $size: "$reviews" },
+          avgRating: {
+            $cond: [
+              { $eq: [{ $size: "$reviews" }, 0] },
+              0, // no reviews
+              { $avg: "$reviews.rating" }
+            ]
+          }
+        }
+      },
+
+      // 4️⃣ Formatting
+      {
+        $project: {
+          name:1,
+          address:1,
+          contactEmail:1,
+          contactPhone:1,
+          heroImg:1,
+          galleryPhotos:1,
+          openingHours:1,
+          closingHours:1,
+          openForDays:1,
+          facilities:1,
+          aboutLibrary:1,
+          totalReviews:1,
+          avgRating:1,
+          librarian:1,
+          reviews:1,
+          
+        }
+      }
+    ]
+
+
+
+    const result = await DAO.aggregateData(LIBRARY_MODEL,aggregate);
+    if (!result.length) {
+      throw new Error("Library not found");
     }
-  );
 
-  if (!library) {
-    throw new Error(ERROR_CODES.LIBRARY_NOT_FOUND.message);
+    return result[0];
+
+  } catch (error) {
+    console.error("Error:", error);
+    throw new Error(error.message);
   }
-
-  return library;
 };
 
 // Update library
 const updateLibrary = async (id, libraryData) => {
-  const { userName, profileImg } = libraryData;
+  const { userName, profileImg,bio } = libraryData;
   const library = await DAO.getOneData(LIBRARY_MODEL, { _id: id });
   const LibrarianData = await DAO.getOneData(USER_MODEL, {
     libraryId: id,
@@ -72,6 +188,9 @@ const updateLibrary = async (id, libraryData) => {
 
   if (profileImg) {
     updateData.avtar = profileImg;
+  }
+  if (bio) {
+    updateData.bio = bio;
   }
 
   const updateResult = await DAO.updateData(
@@ -96,6 +215,7 @@ const updateLibrary = async (id, libraryData) => {
     address,
     contactEmail,
     contactPhone,
+    aboutLibrary,
   } = libraryData;
   const updateLibraryData = {};
   if (heroImg) {
@@ -130,6 +250,9 @@ const updateLibrary = async (id, libraryData) => {
   }
   if (contactPhone) {
     updateLibraryData.contactPhone = contactPhone;
+  }
+  if (aboutLibrary) {
+    updateLibraryData.aboutLibrary = aboutLibrary;
   }
   return await DAO.updateData(LIBRARY_MODEL, { _id: id }, updateLibraryData);
 };
@@ -212,22 +335,30 @@ const filterLibraryDataForUser = async (payload) => {
   }
 };
 
+const getFeaturedLibraries = async () => {
+  const Libraries = await DAO.aggregateData(LIBRARY_MODEL, [
+    { $match: { Featured: true } },
+    {
+      $project: {
+        plans: 1,
+        name: 1,
+        address: 1,
+        contactEmail: 1,
+        contactPhone: 1,
+        heroImg: 1,
+        galleryPhotos: 1,
+        openingHours: 1,
+        closingHours: 1,
+        openForDays: 1,
+        facilities: 1,
+      },
+    },
+  ]);
 
-async function test(params) {
-  const payload = {
-    // searchText: 'muriyari',
-    // facilities: ['Wi-Fi','Cafe' ],
-    name: "Beauty",
-    // rating: 4,
-    feeRange: 100,
-    // sortBy: 'rating',
-  };
-  const Libraries = await filterLibraryDataForUser(payload);
-  console.log("librariesssdat", Libraries);
   return Libraries;
-}
+};
 
-test();
+
 
 module.exports = {
   createLibrary,
@@ -236,4 +367,5 @@ module.exports = {
   updateLibrary,
   deleteLibrary,
   filterLibraryDataForUser,
+  getFeaturedLibraries,
 };

@@ -37,6 +37,8 @@ const updateLibrarySchema = Joi.object({
     price : Joi.string().trim().optional(),
   })).optional(),
   facilities : Joi.array().items(Joi.string().trim().optional()),
+  aboutLibrary : Joi.string().trim().optional(),
+  bio : Joi.string().trim().optional(),
 });
 
 module.exports = {
