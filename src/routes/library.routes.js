@@ -70,7 +70,7 @@ router.get('/', libraryController.getAllLibraries);
  *       404:
  *         description: Library not found
  */
-router.get('/:id', protect, libraryController.getLibraryById);
+router.get('/:id', libraryController.getLibraryById);
 
 /**
  * @swagger

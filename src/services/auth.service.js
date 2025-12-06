@@ -307,6 +307,8 @@ const resetPassword = async (token, password) => {
 
     await DAO.updateData(USER_MODEL, { email }, { password: hashedPassword });
 
+    await redisClient.del(`forgot-password:${token}`);
+
     return "Password has been reseted.";
   } catch (error) {
     throw new Error(error);
