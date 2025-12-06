@@ -184,6 +184,7 @@ const userInfo = async (userId) => {
           createdAt: 1,
           libraryId: 1,
           avtar: 1,
+          bio:1,
 
           // library info
           "libraryData._id": 1,
@@ -202,6 +203,8 @@ const userInfo = async (userId) => {
           "libraryData.openForDays": 1,
           "libraryData.plans": 1,
           "libraryData.facilities": 1,
+          "libraryData.aboutLibrary": 1,
+        
 
           // student info
           "studentData._id": 1,

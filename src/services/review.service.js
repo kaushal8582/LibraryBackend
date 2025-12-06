@@ -1,5 +1,5 @@
 const DAO = require("../dao");
-const { REVIEW_MODEL } = require("../utils/constants");
+const { REVIEW_MODEL,LIBRARY_MODEL } = require("../utils/constants");
 
 const addReview = async(payload,user)=>{
     try {
@@ -18,6 +18,7 @@ const addReview = async(payload,user)=>{
         if(existingReview){
             throw new Error("Review already exists");
         }
+        console.log("here 1");
 
 
         if(!getLibrary){
@@ -29,7 +30,9 @@ const addReview = async(payload,user)=>{
             rating,
             reviewText,
         }
+        
         const addReview = await DAO.createData(REVIEW_MODEL,reviewData);
+        console.log("hreere2");
         if(!addReview){
             throw new Error("Review not added");
         }

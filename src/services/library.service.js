@@ -54,16 +54,26 @@ const getAllLibraries = async (query = {}) => {
 //   return library;
 // };
 
-const getLibraryById = async (libraryId) => {
+const getLibraryById = async (libraryId, userId) => {
   try {
     const objectId = new mongoose.Types.ObjectId(libraryId);
 
-    const aggregate =[
+    // OPTIONAL USER ID FIX
+    let userObjectId = null;
+    if (userId) {
+      try {
+        userObjectId = new mongoose.Types.ObjectId(userId);
+      } catch (err) {
+        userObjectId = null; // Invalid ID fallback
+      }
+    }
 
-      // Match library
+    console.log("userObjectId:", userObjectId);
+
+    const aggregate = [
       { $match: { _id: objectId } },
 
-      // 1️⃣ Lookup Librarian (User with role 'librarian' and this libraryId)
+      // Librarian
       {
         $lookup: {
           from: "users",
@@ -72,17 +82,12 @@ const getLibraryById = async (libraryId) => {
           as: "librarian",
           pipeline: [
             { $match: { role: "librarian" } },
-            {
-              $project: {
-                password: 0,
-                __v: 0
-              }
-            }
-          ]
-        }
+            { $project: { password: 0, __v: 0 } },
+          ],
+        },
       },
 
-      // 2️⃣ Lookup Reviews
+      // Reviews
       {
         $lookup: {
           from: "reviews",
@@ -102,66 +107,103 @@ const getLibraryById = async (libraryId) => {
                     $project: {
                       password: 0,
                       __v: 0,
-                    }
-                  }
-                ]
-              }
+                      role: 0,
+                      bio: 0,
+                      phone: 0,
+                      email: 0,
+                      isActive: 0,
+                      lastLogin: 0,
+                      updatedAt: 0,
+                      createdAt: 0,
+                    },
+                  },
+                ],
+              },
             },
             {
               $addFields: {
-                userDetails: { $arrayElemAt: ["$userDetails", 0] }
-              }
-            }
-          ]
-        }
+                userDetails: { $arrayElemAt: ["$userDetails", 0] },
+              },
+            },
+          ],
+        },
       },
 
-      // 3️⃣ Add rating summary
+      // ⭐ isMyReview only when userObjectId exists
+      {
+        $addFields: {
+          reviews: {
+            $map: {
+              input: "$reviews",
+              as: "r",
+              in: {
+                $mergeObjects: [
+                  "$$r",
+                  {
+                    isMyReview: userObjectId
+                      ? { $eq: ["$$r.userId", userObjectId] }
+                      : false, // User not logged in → always false
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+
+      // Sort
+      {
+        $addFields: {
+          reviews: {
+            $sortArray: {
+              input: "$reviews",
+              sortBy: { isMyReview: -1, createdAt: -1 },
+            },
+          },
+        },
+      },
+
+      // Rating summary
       {
         $addFields: {
           totalReviews: { $size: "$reviews" },
           avgRating: {
             $cond: [
               { $eq: [{ $size: "$reviews" }, 0] },
-              0, // no reviews
-              { $avg: "$reviews.rating" }
-            ]
-          }
-        }
+              0,
+              { $avg: "$reviews.rating" },
+            ],
+          },
+        },
       },
 
-      // 4️⃣ Formatting
+      // Final Projection
       {
         $project: {
-          name:1,
-          address:1,
-          contactEmail:1,
-          contactPhone:1,
-          heroImg:1,
-          galleryPhotos:1,
-          openingHours:1,
-          closingHours:1,
-          openForDays:1,
-          facilities:1,
-          aboutLibrary:1,
-          totalReviews:1,
-          avgRating:1,
-          librarian:1,
-          reviews:1,
-          
-        }
-      }
-    ]
+          name: 1,
+          address: 1,
+          contactEmail: 1,
+          contactPhone: 1,
+          heroImg: 1,
+          galleryPhotos: 1,
+          openingHours: 1,
+          closingHours: 1,
+          openForDays: 1,
+          facilities: 1,
+          aboutLibrary: 1,
+          totalReviews: 1,
+          avgRating: 1,
+          librarian: 1,
+          reviews: 1,
+          plans: 1,
+        },
+      },
+    ];
 
-
-
-    const result = await DAO.aggregateData(LIBRARY_MODEL,aggregate);
-    if (!result.length) {
-      throw new Error("Library not found");
-    }
+    const result = await DAO.aggregateData(LIBRARY_MODEL, aggregate);
+    if (!result.length) throw new Error("Library not found");
 
     return result[0];
-
   } catch (error) {
     console.error("Error:", error);
     throw new Error(error.message);
@@ -170,7 +212,7 @@ const getLibraryById = async (libraryId) => {
 
 // Update library
 const updateLibrary = async (id, libraryData) => {
-  const { userName, profileImg,bio } = libraryData;
+  const { userName, profileImg, bio } = libraryData;
   const library = await DAO.getOneData(LIBRARY_MODEL, { _id: id });
   const LibrarianData = await DAO.getOneData(USER_MODEL, {
     libraryId: id,
@@ -274,6 +316,7 @@ const filterLibraryDataForUser = async (payload) => {
 
     const matchQuery = {};
 
+    // 🔍 Search Filter
     if (searchText) {
       matchQuery.$or = [
         { name: { $regex: searchText, $options: "i" } },
@@ -281,24 +324,41 @@ const filterLibraryDataForUser = async (payload) => {
       ];
     }
 
+    // 🏢 Facilities Filter
     if (facilities && facilities.length > 0) {
       matchQuery.facilities = { $in: facilities };
     }
 
+    // 🔎 Name Filter
     if (name) {
       matchQuery.name = { $regex: name, $options: "i" };
     }
 
-    if (rating) {
-      matchQuery.rating = { $gte: rating };
-    }
-
     const pipeline = [
       { $match: matchQuery },
+      {
+        $lookup: {
+          from: "reviews",
+          localField: "_id",
+          foreignField: "libraryId",
+          as: "reviews",
+          pipeline: [
+            { $match: { isDeleted: false } },
+            { $project: { rating: 1 } },
+          ],
+        },
+      },
 
-      // ⭐ Add minPrice from plans array
       {
         $addFields: {
+          avgRating: {
+            $cond: [
+              { $eq: [{ $size: "$reviews" }, 0] },
+              0,
+              { $avg: "$reviews.rating" },
+            ],
+          },
+
           minPrice: {
             $min: {
               $map: {
@@ -310,10 +370,18 @@ const filterLibraryDataForUser = async (payload) => {
           },
         },
       },
+
+      { $project: { reviews: 0 } },
     ];
 
-    // ⭐ FILTER BY feeRange (single value)
-    //   Expecting feeRange = 300 → so minPrice <= 300
+    if (rating) {
+      pipeline.push({
+        $match: {
+          avgRating: { $gte: Number(rating) },
+        },
+      });
+    }
+
     if (feeRange !== undefined && feeRange !== null) {
       pipeline.push({
         $match: {
@@ -322,13 +390,12 @@ const filterLibraryDataForUser = async (payload) => {
       });
     }
 
-    // ⭐ SORTING
+    // 🔽 Sorting
     if (sortBy) {
       pipeline.push({ $sort: { [sortBy]: 1 } });
     }
 
     const Libraries = await DAO.aggregateData(LIBRARY_MODEL, pipeline);
-
     return Libraries;
   } catch (error) {
     throw new Error(error.message);
@@ -336,28 +403,78 @@ const filterLibraryDataForUser = async (payload) => {
 };
 
 const getFeaturedLibraries = async () => {
-  const Libraries = await DAO.aggregateData(LIBRARY_MODEL, [
-    { $match: { Featured: true } },
-    {
-      $project: {
-        plans: 1,
-        name: 1,
-        address: 1,
-        contactEmail: 1,
-        contactPhone: 1,
-        heroImg: 1,
-        galleryPhotos: 1,
-        openingHours: 1,
-        closingHours: 1,
-        openForDays: 1,
-        facilities: 1,
+  try {
+    const pipeline = [
+      { $match: { featured: true } },
+
+      // ⭐ Pull Ratings From Reviews
+      {
+        $lookup: {
+          from: "reviews",
+          localField: "_id",
+          foreignField: "libraryId",
+          as: "reviews",
+          pipeline: [
+            { $match: { isDeleted: false } },
+            { $project: { rating: 1 } },
+          ],
+        },
       },
-    },
-  ]);
 
-  return Libraries;
+      // ⭐ Calculate avgRating + minPrice
+      {
+        $addFields: {
+          avgRating: {
+            $cond: [
+              { $eq: [{ $size: "$reviews" }, 0] },
+              0,
+              { $avg: "$reviews.rating" }
+            ]
+          },
+
+          minPrice: {
+            $min: {
+              $map: {
+                input: { $ifNull: ["$plans", []] },
+                as: "pl",
+                in: { $toInt: "$$pl.price" }
+              }
+            }
+          }
+        }
+      },
+
+      // ⭐ Only required fields
+      {
+        $project: {
+          name: 1,
+          // address: 1,
+          // contactEmail: 1,
+          // contactPhone: 1,
+          heroImg: 1,
+          // galleryPhotos: 1,
+          // openingHours: 1,
+          // closingHours: 1,
+          // openForDays: 1,
+          facilities: 1,
+          // plans: 1,
+          avgRating: 1,
+          minPrice: 1,
+          _id: 1,
+
+
+        }
+      }
+    ];
+
+    const result = await DAO.aggregateData(LIBRARY_MODEL, pipeline);
+    return result;
+
+  } catch (error) {
+    console.error("Featured Error:", error);
+    throw new Error(error.message);
+  }
 };
-
 
 
 module.exports = {

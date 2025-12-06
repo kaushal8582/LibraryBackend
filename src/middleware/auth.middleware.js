@@ -11,13 +11,9 @@ const { USER_MODEL } = require('../utils/constants');
 const protect = async (req, res, next) => {
   try {
     let token;
-    
-    // Check if token exists in headers
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
       token = req.headers.authorization.split(' ')[1];
     }
-    
-    // Check if token exists
     if (!token) {
       return errorResponse(res, ERROR_CODES.UNAUTHORIZED.message, 401);
     }
@@ -42,6 +38,34 @@ const protect = async (req, res, next) => {
     return errorResponse(res, ERROR_CODES.INVALID_TOKEN.message, 401);
   }
 };
+// Protect routes
+const protectOrNot = async (req, res, next) => {
+  try {
+    let token;
+    // if (req?.headers?.authorization && req?.headers?.authorization?.startsWith('Bearer')) {
+    //   token = req?.headers?.authorization?.split(' ')[1];
+    // }
+    if (!token) {
+      next()
+    }
+    
+    // Verify tokene
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    // getLoggedInUserData
+
+    const data = await DAO.getOneData(USER_MODEL,{_id : decoded.id})
+    
+    // Add user ID to request
+    req.userId = decoded.id;
+    req.userRole = decoded.role;
+    req.user =  data;
+    
+    next();
+  } catch (error) {
+    next();
+  }
+};
 
 // Admin only middleware
 const adminOnly = (req, res, next) => {
@@ -62,5 +86,6 @@ const adminOrLibrarianOnly = (req, res, next) => {
 module.exports = {
   protect,
   adminOnly,
-  adminOrLibrarianOnly
+  adminOrLibrarianOnly,
+  protectOrNot
 };

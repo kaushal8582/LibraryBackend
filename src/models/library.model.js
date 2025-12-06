@@ -61,7 +61,7 @@ const librarySchema = new mongoose.Schema({
       default: 'Monday'
     }
   ],
-  Featured : {
+  featured : {
     type : Boolean,
     default : false
   },

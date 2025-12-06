@@ -13,6 +13,9 @@ const libraryRoutes = require('./routes/library.routes');
 const studentRoutes = require('./routes/student.routes');
 const paymentRoutes = require('./routes/payment.routes');
 const dashboardRoutes = require('./routes/dashboard.routes');
+const reviewRoutes = require('./routes/review.routes');
+
+
 
 // Import middleware
 const errorHandler = require('./middleware/errorHandler');
@@ -61,6 +64,7 @@ app.use('/api/libraries', libraryRoutes);
 app.use('/api/students', studentRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use("/api/reviews", reviewRoutes);
 
 
 

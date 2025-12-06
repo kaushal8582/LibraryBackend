@@ -26,7 +26,13 @@ const getAllLibraries = async (req, res) => {
 // Get library by ID controller
 const getLibraryById = async (req, res) => {
   try {
-    const result = await libraryService.getLibraryById(req.params.id);
+
+    const userId=req?.query?.userId;
+    if(!userId){
+      // throw new Error("User ID is required");
+    }
+   
+    const result = await libraryService.getLibraryById(req.params.id,userId);
     return successResponse(res, 'Library retrieved successfully', result);
   } catch (error) {
     return errorResponse(res, error.message, 404);
