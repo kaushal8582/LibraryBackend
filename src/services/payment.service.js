@@ -60,7 +60,8 @@ const createPaymentOrder = async (paymentData) => {
       currency,
       receipt,
       notes,
-      "production"
+      "production",
+      library,
     );
 
     // Create payment record in database

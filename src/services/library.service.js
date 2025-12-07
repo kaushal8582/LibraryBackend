@@ -258,7 +258,11 @@ const updateLibrary = async (id, libraryData) => {
     contactEmail,
     contactPhone,
     aboutLibrary,
+    razorPayKey,
+    razorPaySecret,
+    razorPayWebhookSecret,
   } = libraryData;
+
   const updateLibraryData = {};
   if (heroImg) {
     updateLibraryData.heroImg = heroImg;
@@ -296,6 +300,18 @@ const updateLibrary = async (id, libraryData) => {
   if (aboutLibrary) {
     updateLibraryData.aboutLibrary = aboutLibrary;
   }
+  if (razorPayKey) {
+    updateLibraryData.razorPayKey = razorPayKey;
+  }
+  if (razorPaySecret) {
+    updateLibraryData.razorPaySecret = razorPaySecret;
+  }
+  if (razorPayWebhookSecret) {
+    updateLibraryData.razorPayWebhookSecret = razorPayWebhookSecret;
+  }
+
+  console.log("updateLibraryData",updateLibraryData);
+
   return await DAO.updateData(LIBRARY_MODEL, { _id: id }, updateLibraryData);
 };
 
@@ -476,6 +492,18 @@ const getFeaturedLibraries = async () => {
   }
 };
 
+const getLibraryRazorPayInfo = async (id) => {
+  const library = await DAO.getOneData(LIBRARY_MODEL, { _id: id });
+
+  if (!library) {
+    throw new Error(ERROR_CODES.LIBRARY_NOT_FOUND.message);
+  }
+
+console.log("library data ",library);
+
+  return library;
+};
+
 
 module.exports = {
   createLibrary,
@@ -485,4 +513,5 @@ module.exports = {
   deleteLibrary,
   filterLibraryDataForUser,
   getFeaturedLibraries,
+  getLibraryRazorPayInfo,
 };

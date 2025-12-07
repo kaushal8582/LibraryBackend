@@ -79,6 +79,17 @@ const getFeaturedLibraries = async (req, res) => {
 };
 
 
+// Get library RazorPay info controller
+const getLibraryRazorPayInfo = async (req, res) => {
+  try {
+    const result = await libraryService.getLibraryRazorPayInfo(req.params.id);
+    return successResponse(res, 'Library RazorPay info retrieved successfully', result);
+  } catch (error) {
+    return errorResponse(res, error.message, 404);
+  }
+};
+
+
 
 module.exports = {
   createLibrary,
@@ -88,4 +99,5 @@ module.exports = {
   deleteLibrary,
   filterLibraries,
   getFeaturedLibraries,
+  getLibraryRazorPayInfo,
 };

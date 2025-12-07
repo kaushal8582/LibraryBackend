@@ -7,10 +7,10 @@ const DAO = require("../dao");
 const { PAYMENT_MODEL } = require("./constants");
 
 // Initialize Razorpay
-const razorpayInstance = new Razorpay({
-  key_id: RAZORPAY_KEY_ID,
-  key_secret: RAZORPAY_KEY_SECRET,
-});
+// const razorpayInstance = new Razorpay({
+//   key_id: RAZORPAY_KEY_ID,
+//   key_secret: RAZORPAY_KEY_SECRET,
+// });
 
 // Create order
 const createOrder = async (
@@ -18,21 +18,29 @@ const createOrder = async (
   currency = "INR",
   receipt = "order_receipt",
   notes = {},
-  label = "production"
+  label = "production",
+  library = {}
 ) => {
   try {
+    // Validate library exists
+    if (!library.razorPayKey || !library.razorPaySecret) {
+      throw new Error(
+        "Please Configure Your Razorpay Keys in Library Settings"
+      );
+    }
+
     const currentMonth = new Date().toISOString().slice(0, 7);
-   
+
     let existingPayment = await DAO.getOneData(PAYMENT_MODEL, {
       studentId: notes.studentId,
       month: currentMonth,
       status: "pending",
     });
 
-     console.log("existing Payment", existingPayment);
-     console.log("notes ",notes);
-
-
+    const razorpayInstance = new Razorpay({
+      key_id: library.razorPayKey,
+      key_secret: library.razorPaySecret,
+    });
 
     if (existingPayment) {
       return {
@@ -50,7 +58,6 @@ const createOrder = async (
       receipt,
       notes: { ...notes, label },
     };
-    
 
     const res = await razorpayInstance.orders.create(options);
     console.log("response", res);
@@ -78,7 +85,7 @@ const verifyPayment = (paymentId, orderId, signature) => {
 };
 
 module.exports = {
-  razorpayInstance,
+ 
   createOrder,
   verifyPayment,
 };

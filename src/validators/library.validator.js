@@ -39,6 +39,9 @@ const updateLibrarySchema = Joi.object({
   facilities : Joi.array().items(Joi.string().trim().optional()),
   aboutLibrary : Joi.string().trim().optional(),
   bio : Joi.string().trim().optional(),
+  razorPayKey : Joi.string().trim().optional(),
+  razorPaySecret : Joi.string().trim().optional(),
+  razorPayWebhookSecret : Joi.string().trim().optional(),
 });
 
 module.exports = {

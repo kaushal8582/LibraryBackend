@@ -131,5 +131,7 @@ router.put('/:id', protect, adminOrLibrarianOnly, validateRequest(updateLibraryS
 router.delete('/:id', protect, adminOnly, libraryController.deleteLibrary);
 router.post("/filter/libraries", libraryController.filterLibraries);
 router.get("/featured/libraries", libraryController.getFeaturedLibraries);
+router.get("/:id/razorpay-info",protect,adminOrLibrarianOnly, libraryController.getLibraryRazorPayInfo);
+
 
 module.exports = router;
