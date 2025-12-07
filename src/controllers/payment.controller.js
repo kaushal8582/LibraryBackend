@@ -118,6 +118,20 @@ const makePaymentInCash = async (req, res) => {
   }
 };
 
+
+// Razorpay webhook controller
+const razorpayWebhook = async (req, res) => {
+  try {
+    const result = await paymentService.razorpayWebhook(req.body);
+    
+    return successResponse(res, 'Razorpay webhook processed successfully', result);
+  } catch (error) {
+    return errorResponse(res, error.message, 400);
+  }
+};
+
+
+
 module.exports = {
   createPaymentOrder,
   verifyPayment,
@@ -125,5 +139,6 @@ module.exports = {
   getPaymentsByLibrary,
   getPaymentById,
   processRefund,
-  makePaymentInCash
+  makePaymentInCash,
+  razorpayWebhook
 };

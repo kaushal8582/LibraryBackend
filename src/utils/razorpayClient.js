@@ -28,6 +28,7 @@ const createOrder = async (
         "Please Configure Your Razorpay Keys in Library Settings"
       );
     }
+    
 
     const currentMonth = new Date().toISOString().slice(0, 7);
 
@@ -69,11 +70,11 @@ const createOrder = async (
 };
 
 // Verify payment
-const verifyPayment = (paymentId, orderId, signature) => {
+const verifyPayment = (paymentId, orderId, signature, library) => {
   try {
     const crypto = require("crypto");
     const generatedSignature = crypto
-      .createHmac("sha256", RAZORPAY_KEY_SECRET)
+      .createHmac("sha256", library.razorPaySecret)
       .update(`${orderId}|${paymentId}`)
       .digest("hex");
 

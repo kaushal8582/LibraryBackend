@@ -1,11 +1,14 @@
-'use strict';
+"use strict";
 
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const paymentController = require('../controllers/payment.controller');
-const validateRequest = require('../middleware/validateRequest');
-const { createPaymentSchema, verifyPaymentSchema } = require('../validators/payment.validator');
-const { protect } = require('../middleware/auth.middleware');
+const paymentController = require("../controllers/payment.controller");
+const validateRequest = require("../middleware/validateRequest");
+const {
+  createPaymentSchema,
+  verifyPaymentSchema,
+} = require("../validators/payment.validator");
+const { protect } = require("../middleware/auth.middleware");
 
 /**
  * @swagger
@@ -29,7 +32,12 @@ const { protect } = require('../middleware/auth.middleware');
  *       401:
  *         description: Unauthorized
  */
-router.post('/create-order', protect, validateRequest(createPaymentSchema), paymentController.createPaymentOrder);
+router.post(
+  "/create-order",
+  protect,
+  validateRequest(createPaymentSchema),
+  paymentController.createPaymentOrder
+);
 
 /**
  * @swagger
@@ -53,7 +61,12 @@ router.post('/create-order', protect, validateRequest(createPaymentSchema), paym
  *       401:
  *         description: Unauthorized
  */
-router.post('/verify-payment', protect, validateRequest(verifyPaymentSchema), paymentController.verifyPayment);
+router.post(
+  "/verify-payment",
+  protect,
+  validateRequest(verifyPaymentSchema),
+  paymentController.verifyPayment
+);
 
 /**
  * @swagger
@@ -78,7 +91,11 @@ router.post('/verify-payment', protect, validateRequest(verifyPaymentSchema), pa
  *       404:
  *         description: No payments found
  */
-router.get('/student/:studentId', protect, paymentController.getPaymentsByStudent);
+router.get(
+  "/student/:studentId",
+  protect,
+  paymentController.getPaymentsByStudent
+);
 
 /**
  * @swagger
@@ -103,7 +120,11 @@ router.get('/student/:studentId', protect, paymentController.getPaymentsByStuden
  *       404:
  *         description: No payments found
  */
-router.get('/library/:libraryId', protect, paymentController.getPaymentsByLibrary);
+router.get(
+  "/library/:libraryId",
+  protect,
+  paymentController.getPaymentsByLibrary
+);
 
 /**
  * @swagger
@@ -128,7 +149,7 @@ router.get('/library/:libraryId', protect, paymentController.getPaymentsByLibrar
  *       404:
  *         description: Payment not found
  */
-router.get('/:id', protect, paymentController.getPaymentById);
+router.get("/:id", protect, paymentController.getPaymentById);
 
 /**
  * @swagger
@@ -168,7 +189,7 @@ router.get('/:id', protect, paymentController.getPaymentById);
  *       404:
  *         description: Payment not found
  */
-router.post('/:id/refund', protect, paymentController.processRefund);
+router.post("/:id/refund", protect, paymentController.processRefund);
 
 /**
  * @swagger
@@ -192,6 +213,10 @@ router.post('/:id/refund', protect, paymentController.processRefund);
  *       401:
  *         description: Unauthorized
  */
-router.post('/cash', protect, paymentController.makePaymentInCash);
-
+router.post("/cash", protect, paymentController.makePaymentInCash);
+router.post(
+  "/razorpay/webhook",
+  express.raw({ type: "application/json" }),
+  paymentController.razorpayWebhook
+);
 module.exports = router;
