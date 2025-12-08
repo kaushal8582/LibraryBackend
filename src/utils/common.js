@@ -1,9 +1,11 @@
-function cleanKey(str) {
-  return str
-    .trim()                    // removes normal whitespace
-    .replace(/\s+/g, "")       // removes newline, tabs
-    .replace(/[\u200B-\u200D\uFEFF]/g, ""); // removes invisible unicode spaces
+function cleanKey(str = "") {
+  return String(str)
+    .normalize("NFKC")                // normalize unicode
+    .replace(/[\r\n\t]/g, "")         // remove newline/tab
+    .replace(/\s+/g, "")              // remove ALL spaces
+    .replace(/[\u200B-\u200D\uFEFF]/g, ""); // invisible chars
 }
+
 
 
 export { cleanKey }

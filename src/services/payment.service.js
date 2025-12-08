@@ -65,6 +65,8 @@ const createPaymentOrder = async (paymentData) => {
       library
     );
 
+    console.log("razorpay order", razorpayOrder);
+
     // Create payment record in database
     const paymentDataToSave = {
       studentId,
