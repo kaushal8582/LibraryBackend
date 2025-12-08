@@ -66,7 +66,7 @@ const createStudent = async (studentData, loggedInUser) => {
       userId: createUser?.[0]?._id,
     };
 
-    console.log("payload", payload);
+   
 
     // Create student
     const student = await DAO.createData(STUDENT_MODEL, payload);
@@ -75,7 +75,7 @@ const createStudent = async (studentData, loggedInUser) => {
       throw new AppError("Student not created", 400, "STUDENT_NOT_CREATED");
     }
 
-    console.log("student created successfully ");
+  
 
     const templatePath = path.join(__dirname, "..", "views", "welcome.ejs");
 
@@ -301,10 +301,10 @@ const deleteStudent = async (id) => {
 const uploadImg = async (req) => {
   try {
     const files = req.files?.img?.[0] || null;
-    console.log("file come here ", files);
+   
     if (files) {
       const cloudinaryResponse = await uploadOnCloudinary(files.path);
-      console.log("cloudinaryResponse", cloudinaryResponse);
+     
       if (!cloudinaryResponse) {
         throw new AppError(
           "Error while uploading file on cloudinary",

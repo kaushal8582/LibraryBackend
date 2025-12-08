@@ -9,7 +9,7 @@ const addReviewController = async (req, res) => {
   try {
     const user = req.user;
     const payload = req.body;
-    console.log("user payload", user,payload);
+   
     const addReviewData = await addReview(payload, user);
     return successResponse(res, "Review added successfully", addReviewData);
   } catch (error) {

@@ -7,7 +7,7 @@ const { successResponse, errorResponse } = require('../utils/responseHandler');
 const createPaymentOrder = async (req, res) => {
   try {
     const { studentId, libraryId, amount, currency, description, month } = req.body;
-    console.log("req body",req.body);
+    
     const userId = req.user._id;
     
     const result = await paymentService.createPaymentOrder({
@@ -60,7 +60,7 @@ const getPaymentsByLibrary = async (req, res) => {
   try {
     const { libraryId } = req.params;
     const {lastDays,limit,skip} =  req.query || {lastDays:30,limit:25,skip:0};
-    console.log("lastDays,limit,skip",lastDays,limit,skip);
+    
     const result = await paymentService.getPaymentsByLibrary(libraryId,lastDays,limit,skip);
     
     return successResponse(res, 'Payments retrieved successfully', result);
@@ -107,8 +107,7 @@ const makePaymentInCash = async (req, res) => {
 
     const userId = req.user._id;
 
-    console.log("req body",req.body);
-    console.log("userId",userId);
+   
     
     const result = await paymentService.makePaymentInCash(paymentDate,numberOfMonths,studentId);
     

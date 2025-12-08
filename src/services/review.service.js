@@ -18,7 +18,7 @@ const addReview = async(payload,user)=>{
         if(existingReview){
             throw new Error("Review already exists");
         }
-        console.log("here 1");
+        
 
 
         if(!getLibrary){
@@ -32,7 +32,7 @@ const addReview = async(payload,user)=>{
         }
         
         const addReview = await DAO.createData(REVIEW_MODEL,reviewData);
-        console.log("hreere2");
+       
         if(!addReview){
             throw new Error("Review not added");
         }

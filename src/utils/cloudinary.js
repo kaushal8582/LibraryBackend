@@ -19,7 +19,7 @@ cloudinary.config({
 const uploadOnCloudinary = async(localFilePath)=>{
   try {
     if(!localFilePath) return null;
-    console.log(localFilePath);
+  
 
     const fileExtension = localFilePath.split('.').pop().toLowerCase();
     let resourceType = "auto";
@@ -28,13 +28,13 @@ const uploadOnCloudinary = async(localFilePath)=>{
       resourceType = "raw";
     }
 
-    console.log(resourceType,"resource type ");
+    
     
     const response = await cloudinary.uploader.upload(localFilePath,{
       resource_type:resourceType
     })
 
-    console.log(response);
+    
 
     
     return response;

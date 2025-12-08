@@ -5,6 +5,7 @@ const { RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET } = require("../config/env");
 const logger = require("../config/logger");
 const DAO = require("../dao");
 const { PAYMENT_MODEL } = require("./constants");
+const { cleanKey } = require("./common");
 
 // Initialize Razorpay
 // const razorpayInstance = new Razorpay({
@@ -28,7 +29,9 @@ const createOrder = async (
         "Please Configure Your Razorpay Keys in Library Settings"
       );
     }
-    
+
+    console.log("razorpay secret", library.razorPaySecret);
+    console.log("razorpay key", library.razorPayKey);
 
     const currentMonth = new Date().toISOString().slice(0, 7);
 
@@ -39,8 +42,8 @@ const createOrder = async (
     });
 
     const razorpayInstance = new Razorpay({
-      key_id: library.razorPayKey,
-      key_secret: library.razorPaySecret,
+      key_id: cleanKey(library.razorPayKey),
+      key_secret: cleanKey(library.razorPaySecret),
     });
 
     if (existingPayment) {
@@ -86,7 +89,6 @@ const verifyPayment = (paymentId, orderId, signature, library) => {
 };
 
 module.exports = {
- 
   createOrder,
   verifyPayment,
 };

@@ -76,7 +76,7 @@ const login = async (email, password, role, libraryId) => {
     throw new Error(ERROR_CODES.INVALID_CREDENTIALS.message);
   }
 
-  console.log("library id", libraryId, user.libraryId);
+ 
 
   if (role === "student") {
     if (!libraryId && user.libraryId.toString() !== libraryId) {
@@ -222,7 +222,7 @@ const userInfo = async (userId) => {
     ];
 
     const userWithAllData = await DAO.aggregateData(USER_MODEL, aggregate);
-    console.log("User with full info:", userWithAllData);
+   
 
     return userWithAllData?.[0] || null;
   } catch (error) {
@@ -236,7 +236,6 @@ const updatePassword = async (oldPassword, newPassword, userId) => {
     const user = await DAO.getOneData(USER_MODEL, { _id: userId });
     if (!user) throw new Error("User not found");
 
-    console.log("userd", user);
 
     // Check password
     const isMatch = await bcrypt.compare(oldPassword, user.password);
