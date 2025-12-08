@@ -18,18 +18,18 @@ const PORT = process.env.PORT || 5002;
 
 // sendReminderEmails();
 
-// cron.schedule("*/1 * * * *", async () => {
-//   try {
-//     const response = await fetch("https://librarybackend-ke0y.onrender.com/health", {
-//       method: "GET", 
-//     });
+cron.schedule("*/1 * * * *", async () => {
+  try {
+    const response = await fetch("https://librarybackend-ke0y.onrender.com/health", {
+      method: "GET", 
+    });
 
-//     const data = await response.json();
-//     console.log("API Response:", data);
-//   } catch (error) {
-//     console.error("Cron API Error:", error);
-//   }
-// });
+    const data = await response.json();
+    console.log("API Response:", data);
+  } catch (error) {
+    console.error("Cron API Error:", error);
+  }
+});
 
 // Commented out for initial development
 // const { scheduleReminderJob } = require('./utils/cronJobs');
