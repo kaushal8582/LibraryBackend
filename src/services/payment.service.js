@@ -503,20 +503,28 @@ const makePaymentInCash = async (paymentDate, numberOfMonths, studentId) => {
 
 const razorpayWebhook = async (rawBody, headers) => {
   try {
+    console.log("yaha se start hota hai razorpayWebhook");
     const razorpaySignature = headers["x-razorpay-signature"];
+    console.log("razorpaySignature ", razorpaySignature);
     const WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET;
+    console.log("WEBHOOK_SECRET ", WEBHOOK_SECRET);
 
     const expectedSignature = crypto
       .createHmac("sha256", WEBHOOK_SECRET)
       .update(rawBody)
       .digest("hex");
 
+    console.log("expectedSignature ", expectedSignature);
+
     if (expectedSignature !== razorpaySignature) {
       throw new Error("Invalid webhook signature");
     }
 
     const payload = JSON.parse(Buffer.isBuffer(rawBody) ? rawBody.toString() : String(rawBody));
+    console.log("payload ", payload);
+
     const event = payload.event;
+    console.log("event ", event);
 
     if (event === "payment.captured") {
       const {
@@ -525,9 +533,15 @@ const razorpayWebhook = async (rawBody, headers) => {
         amount,
       } = payload.payload.payment.entity;
 
+      console.log("amount ", amount);
+      console.log("razorpayPaymentId ", razorpayPaymentId);
+      console.log("razorpayOrderId ", razorpayOrderId);
+
       const payment = await DAO.getOneData(PAYMENT_MODEL, {
         razorpayOrderId,
       });
+
+      console.log("payment ", payment);
 
       if (!payment) {
         return { status: "ignored", reason: "payment_not_found", orderId: razorpayOrderId };
@@ -536,6 +550,8 @@ const razorpayWebhook = async (rawBody, headers) => {
       const library = await DAO.getOneData(LIBRARY_MODEL, {
         _id: payment.libraryId,
       });
+
+      console.log("library ", library);
 
       if (!library) {
         return { status: "ignored", reason: "library_not_found", libraryId: payment.libraryId };
