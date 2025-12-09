@@ -501,60 +501,44 @@ const makePaymentInCash = async (paymentDate, numberOfMonths, studentId) => {
   }
 };
 
-const razorpayWebhook = async (req, res) => {
+const razorpayWebhook = async (rawBody, headers) => {
   try {
-    console.log("requestssss->>> ", req);
-    const rawBody = (req.body);
-    console.log("rawBody ", rawBody);
-    const razorpaySignature = req.headers["x-razorpay-signature"];
-    console.log("razorpaySignature ", razorpaySignature);
+    const razorpaySignature = headers["x-razorpay-signature"];
     const WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET;
-    console.log("WEBHOOK_SECRET ", WEBHOOK_SECRET);
-
 
     const expectedSignature = crypto
       .createHmac("sha256", WEBHOOK_SECRET)
       .update(rawBody)
       .digest("hex");
 
-    console.log("expectedSignature ", expectedSignature);
-
     if (expectedSignature !== razorpaySignature) {
-      return res.status(400).send("Invalid webhook signature");
+      throw new Error("Invalid webhook signature");
     }
 
-    const event = req.body.event;
-    console.log("event ", event);
+    const payload = JSON.parse(Buffer.isBuffer(rawBody) ? rawBody.toString() : String(rawBody));
+    const event = payload.event;
 
     if (event === "payment.captured") {
       const {
         id: razorpayPaymentId,
         order_id: razorpayOrderId,
         amount,
-      } = req.body.payload.payment.entity;
-
-      console.log("amount ", amount);
-      console.log("req.body ", req.body.payload.payment.entity);
+      } = payload.payload.payment.entity;
 
       const payment = await DAO.getOneData(PAYMENT_MODEL, {
         razorpayOrderId,
       });
 
-      console.log("payment ", payment);
       if (!payment) {
-        console.log("Payment not found for order:", razorpayOrderId);
-        return res.status(200).json({ status: "ignored" });
+        return { status: "ignored", reason: "payment_not_found", orderId: razorpayOrderId };
       }
 
       const library = await DAO.getOneData(LIBRARY_MODEL, {
         _id: payment.libraryId,
       });
 
-      console.log("library ", library);
-
       if (!library) {
-        console.log("Library not found");
-        return res.status(200).json({ status: "ignored" });
+        return { status: "ignored", reason: "library_not_found", libraryId: payment.libraryId };
       }
 
       const updatedPayment = await DAO.updateData(
@@ -576,7 +560,7 @@ const razorpayWebhook = async (req, res) => {
       const nextDueDate = new Date(studetnData?.nextDueDate);
       nextDueDate.setMonth(nextDueDate.getMonth() + 1);
 
-      const updateStudetn = await DAO.updateData(
+      await DAO.updateData(
         STUDENT_MODEL,
         { _id: studetnData._id },
         {
@@ -586,9 +570,11 @@ const razorpayWebhook = async (req, res) => {
           },
         }
       );
+
+      return { status: "processed", orderId: razorpayOrderId, paymentId: razorpayPaymentId };
     }
 
-    return {};
+    return { status: "ignored", reason: "unhandled_event", event };
   } catch (error) {
     logger.error(`Error processing razorpay webhook: ${error.message}`);
     throw new Error("Failed to process razorpay webhook: " + error.message);

@@ -121,7 +121,7 @@ const makePaymentInCash = async (req, res) => {
 // Razorpay webhook controller
 const razorpayWebhook = async (req, res) => {
   try {
-    const result = await paymentService.razorpayWebhook(req.body);
+    const result = await paymentService.razorpayWebhook(req.body, req.headers);
     
     return successResponse(res, 'Razorpay webhook processed successfully', result);
   } catch (error) {
