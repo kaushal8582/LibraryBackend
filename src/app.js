@@ -15,6 +15,8 @@ const paymentRoutes = require('./routes/payment.routes');
 const dashboardRoutes = require('./routes/dashboard.routes');
 const reviewRoutes = require('./routes/review.routes');
 
+const paymentController = require('./controllers/payment.controller');
+
 
 
 // Import middleware
@@ -28,8 +30,11 @@ const logger = require('./config/logger');
 // Initialize express app
 const app = express();
 
-
-
+app.post(
+  "api/payments/razorpay/webhook",
+  express.raw({ type: "application/json" }),
+  paymentController.razorpayWebhook
+);
 
 // Middleware
 app.use(express.json());
