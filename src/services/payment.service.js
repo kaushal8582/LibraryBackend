@@ -504,7 +504,7 @@ const makePaymentInCash = async (paymentDate, numberOfMonths, studentId) => {
 const razorpayWebhook = async (req, res) => {
   try {
     console.log("requestssss->>> ", req);
-    const rawBody = JSON.stringify(req.body);
+    const rawBody = (req.body);
     console.log("rawBody ", rawBody);
     const razorpaySignature = req.headers["x-razorpay-signature"];
     console.log("razorpaySignature ", razorpaySignature);
