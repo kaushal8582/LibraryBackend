@@ -7,6 +7,7 @@ const STUDENT_MODEL = 'Student';
 const PAYMENT_MODEL = 'Payment';
 const REMINDER_MODEL = 'Reminder';
 const REVIEW_MODEL = 'Review';
+const QUERY_MODEL = 'Query';
 
 module.exports = {
   USER_MODEL,
@@ -15,4 +16,5 @@ module.exports = {
   PAYMENT_MODEL,
   REMINDER_MODEL,
   REVIEW_MODEL,
+  QUERY_MODEL,
 };
