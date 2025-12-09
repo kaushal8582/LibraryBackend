@@ -68,7 +68,7 @@ const getLibraryById = async (libraryId, userId) => {
       }
     }
 
-    console.log("userObjectId:", userObjectId);
+   
 
     const aggregate = [
       { $match: { _id: objectId } },
@@ -310,7 +310,7 @@ const updateLibrary = async (id, libraryData) => {
     updateLibraryData.razorPayWebhookSecret = razorPayWebhookSecret;
   }
 
-  console.log("updateLibraryData",updateLibraryData);
+  
 
   return await DAO.updateData(LIBRARY_MODEL, { _id: id }, updateLibraryData);
 };
@@ -499,7 +499,7 @@ const getLibraryRazorPayInfo = async (id) => {
     throw new Error(ERROR_CODES.LIBRARY_NOT_FOUND.message);
   }
 
-console.log("library data ",library);
+
 
   return library;
 };

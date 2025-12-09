@@ -50,6 +50,7 @@ const createOrder = async (
         currency: existingPayment.currency,
         status: existingPayment.status,
         fromDB: true,
+        key : library.razorPayKey,
       };
     }
 
@@ -57,7 +58,7 @@ const createOrder = async (
       amount: amount * 100,
       currency,
       receipt,
-      notes: { ...notes, label },
+      notes: { ...notes, label,key: library.razorPayKey },
     };
 
     const res = await razorpayInstance.orders.create(options);
