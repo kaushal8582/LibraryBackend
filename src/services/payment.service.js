@@ -144,7 +144,7 @@ const verifyPayment = async (paymentData) => {
       throw new Error("Invalid payment signature");
     }
 
-    console.log("iscalidSignature ", isValidSignature);
+    // console.log("iscalidSignature ", isValidSignature);
 
     // Update payment status to completed
     const updatedPayment = await DAO.updateData(
@@ -177,7 +177,7 @@ const verifyPayment = async (paymentData) => {
       }
     );
 
-    console.log("updatePymf", updatedPayment, updateStudetn);
+    // console.log("updatePymf", updatedPayment, updateStudetn);
 
     return updatedPayment;
   } catch (error) {
