@@ -33,7 +33,7 @@ const app = express();
 
 app.post("/api/payments/razorpay/webhook",
   express.raw({ type: "application/json" }),
-  handleWebhook
+  paymentController.razorpayWebhook
 );
 
 
