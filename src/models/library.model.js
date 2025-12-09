@@ -116,6 +116,10 @@ const librarySchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    razorPayAccountId: {
+      type: String,
+      default: "",
+    },
     isActive: {
       type: Boolean,
       default: true,

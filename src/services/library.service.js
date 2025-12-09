@@ -261,6 +261,7 @@ const updateLibrary = async (id, libraryData) => {
     razorPayKey,
     razorPaySecret,
     razorPayWebhookSecret,
+    razorPayAccountId,
   } = libraryData;
 
   const updateLibraryData = {};
@@ -308,6 +309,9 @@ const updateLibrary = async (id, libraryData) => {
   }
   if (razorPayWebhookSecret) {
     updateLibraryData.razorPayWebhookSecret = razorPayWebhookSecret;
+  }
+  if(razorPayAccountId) {
+    updateLibraryData.razorPayAccountId = razorPayAccountId;
   }
 
   

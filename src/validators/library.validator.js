@@ -42,6 +42,7 @@ const updateLibrarySchema = Joi.object({
   razorPayKey : Joi.string().trim().optional(),
   razorPaySecret : Joi.string().trim().optional(),
   razorPayWebhookSecret : Joi.string().trim().optional(),
+  razorPayAccountId : Joi.string().trim().optional(),
 });
 
 module.exports = {
