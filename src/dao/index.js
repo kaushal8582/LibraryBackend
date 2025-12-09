@@ -7,6 +7,7 @@ require('../models/student.model');
 require('../models/payment.model');
 require('../models/reminder.model');
 require('../models/review.model');
+require('../models/query.model');
 
 
 

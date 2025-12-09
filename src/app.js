@@ -14,6 +14,7 @@ const studentRoutes = require('./routes/student.routes');
 const paymentRoutes = require('./routes/payment.routes');
 const dashboardRoutes = require('./routes/dashboard.routes');
 const reviewRoutes = require('./routes/review.routes');
+const queryRoutes = require('./routes/query.routes');
 
 
 
@@ -65,6 +66,7 @@ app.use('/api/students', studentRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/query", queryRoutes);
 
 
 
