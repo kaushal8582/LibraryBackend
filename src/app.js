@@ -6,6 +6,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsDoc = require('swagger-jsdoc');
+const bodyParser = require("body-parser")
 
 // Import routes
 const authRoutes = require('./routes/auth.routes');
