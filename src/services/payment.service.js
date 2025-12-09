@@ -17,6 +17,54 @@ const {
 } = require("../utils/razorpayClient");
 const logger = require("../config/logger");
 
+
+
+
+const completePaymentProcess = async (payment, razorpayPaymentId) => {
+  // --- Stop double processing ---
+  if (payment.status === "completed") {
+    console.log("Payment already processed. Skipping update.");
+    return payment;
+  }
+
+  // --- Update payment status ---
+  const updatedPayment = await DAO.updateData(
+    PAYMENT_MODEL,
+    { _id: payment._id },
+    {
+      $set: {
+        status: "completed",
+        razorpayPaymentId,
+        paymentDate: new Date(),
+      },
+    }
+  );
+
+  // --- Update student subscription ---
+  const student = await DAO.getOneData(STUDENT_MODEL, {
+    userId: updatedPayment.studentId,
+  });
+
+  const nextDueDate = new Date(student?.nextDueDate);
+  nextDueDate.setMonth(nextDueDate.getMonth() + 1);
+
+  await DAO.updateData(
+    STUDENT_MODEL,
+    { _id: student._id },
+    {
+      $set: {
+        nextDueDate,
+        isPaymentDoneForThisMonth: true,
+      },
+    }
+  );
+
+  return updatedPayment;
+};
+
+
+
+
 // Create payment order
 const createPaymentOrder = async (paymentData) => {
   try {
@@ -110,20 +158,16 @@ const createPaymentOrder = async (paymentData) => {
 // Verify payment
 const verifyPayment = async (paymentData) => {
   try {
-    const { razorpayPaymentId, razorpayOrderId, razorpaySignature } =
-      paymentData;
+    const { razorpayPaymentId, razorpayOrderId, razorpaySignature } = paymentData;
 
-    // Find payment by Razorpay order ID
     const payment = await DAO.getOneData(PAYMENT_MODEL, { razorpayOrderId });
-    if (!payment) {
-      throw new Error("Payment order not found");
-    }
+    if (!payment) throw new Error("Payment order not found");
 
     const library = await DAO.getOneData(LIBRARY_MODEL, {
       _id: payment.libraryId,
     });
 
-    // Verify Razorpay signature
+    // Verify signature (customer side)
     const isValidSignature = verifyRazorpaySignature(
       razorpayPaymentId,
       razorpayOrderId,
@@ -132,58 +176,22 @@ const verifyPayment = async (paymentData) => {
     );
 
     if (!isValidSignature) {
-      // Update payment status to failed
       await DAO.updateData(
         PAYMENT_MODEL,
         { _id: payment._id },
-        {
-          status: "failed",
-          razorpayPaymentId,
-        }
+        { status: "failed", razorpayPaymentId }
       );
       throw new Error("Invalid payment signature");
     }
 
-    // console.log("iscalidSignature ", isValidSignature);
+    // --- SAFELY PROCESS PAYMENT ---
+    return await completePaymentProcess(payment, razorpayPaymentId);
 
-    // Update payment status to completed
-    const updatedPayment = await DAO.updateData(
-      PAYMENT_MODEL,
-      { _id: payment._id },
-      {
-        $set: {
-          status: "completed",
-          razorpayPaymentId,
-          paymentDate: new Date(),
-        },
-      }
-    );
-
-    const studetnData = await DAO.getOneData(STUDENT_MODEL, {
-      userId: updatedPayment.studentId,
-    });
-
-    const nextDueDate = new Date(studetnData?.nextDueDate);
-    nextDueDate.setMonth(nextDueDate.getMonth() + 1);
-
-    const updateStudetn = await DAO.updateData(
-      STUDENT_MODEL,
-      { _id: studetnData._id },
-      {
-        $set: {
-          nextDueDate,
-          isPaymentDoneForThisMonth: true,
-        },
-      }
-    );
-
-    // console.log("updatePymf", updatedPayment, updateStudetn);
-
-    return updatedPayment;
   } catch (error) {
     console.log("Error in verify Payment ", error);
   }
 };
+
 
 // Get payments by student
 const getPaymentsByStudent = async (studentId) => {
@@ -503,21 +511,25 @@ const makePaymentInCash = async (paymentDate, numberOfMonths, studentId) => {
 
 const razorpayWebhook = async (rawBody, headers) => {
   try {
-    console.log("runWebHook ->>>>>>>>>>>>>>>>>>>>>")
+    console.log("Webhook triggered");
+
+    // 1. Verify webhook signature dynamically
     const razorpaySignature = headers["x-razorpay-signature"];
+
     const payload = JSON.parse(
       Buffer.isBuffer(rawBody) ? rawBody.toString() : String(rawBody)
     );
 
     const accountId = payload?.account_id;
+
     const libraryData = await DAO.getOneData(LIBRARY_MODEL, {
       razorPayAccountId: accountId,
     });
 
-    if (!libraryData) {
-      throw new Error("Library not found");
-    }
-    const WEBHOOK_SECRET = libraryData?.razorPayWebhookSecret;
+    if (!libraryData) throw new Error("Library not found");
+
+    const WEBHOOK_SECRET = libraryData.razorPayWebhookSecret;
+
     const expectedSignature = crypto
       .createHmac("sha256", WEBHOOK_SECRET)
       .update(rawBody)
@@ -526,83 +538,34 @@ const razorpayWebhook = async (rawBody, headers) => {
     if (expectedSignature !== razorpaySignature) {
       throw new Error("Invalid webhook signature");
     }
-    const event = payload.event;
-    if (event === "payment.captured") {
-      const {
-        id: razorpayPaymentId,
-        order_id: razorpayOrderId,
-        amount,
-      } = payload.payload.payment.entity;
+
+    // 2. Handle payment.captured event
+    if (payload.event === "payment.captured") {
+      const entity = payload.payload.payment.entity;
 
       const payment = await DAO.getOneData(PAYMENT_MODEL, {
-        razorpayOrderId,
+        razorpayOrderId: entity.order_id,
       });
 
       if (!payment) {
-        return {
-          status: "ignored",
-          reason: "payment_not_found",
-          orderId: razorpayOrderId,
-        };
+        return { status: "ignored", reason: "payment_not_found" };
       }
 
-      const library = await DAO.getOneData(LIBRARY_MODEL, {
-        _id: payment.libraryId,
-      });
+      // --- SAFE COMMON PROCESSING ---
+      const updated = await completePaymentProcess(payment, entity.id);
 
-      if (!library) {
-        return {
-          status: "ignored",
-          reason: "library_not_found",
-          libraryId: payment.libraryId,
-        };
-      }
-
-      const updatedPayment = await DAO.updateData(
-        PAYMENT_MODEL,
-        { _id: payment._id },
-        {
-          $set: {
-            status: "completed",
-            razorpayPaymentId,
-            paymentDate: new Date(),
-          },
-        }
-      );
-
-      const studetnData = await DAO.getOneData(STUDENT_MODEL, {
-        userId: updatedPayment.studentId,
-      });
-
-      const nextDueDate = new Date(studetnData?.nextDueDate);
-      nextDueDate.setMonth(nextDueDate.getMonth() + 1);
-
-      await DAO.updateData(
-        STUDENT_MODEL,
-        { _id: studetnData._id },
-        {
-          $set: {
-            nextDueDate,
-            isPaymentDoneForThisMonth: true,
-          },
-        }
-      );
-
-      console.log("Complete webhook ->>>>>>>>>>>>>>>>>>>>>>");
-
-      return {
-        status: "processed",
-        orderId: razorpayOrderId,
-        paymentId: razorpayPaymentId,
-      };
+      console.log("Webhook completed");
+      return updated;
     }
 
-    return { status: "ignored", reason: "unhandled_event", event };
+    return { status: "ignored", reason: "unhandled_event" };
+
   } catch (error) {
-    logger.error(`Error processing razorpay webhook: ${error.message}`);
-    throw new Error("Failed to process razorpay webhook: " + error.message);
+    logger.error("Webhook error:", error.message);
+    throw new Error("Webhook failed: " + error.message);
   }
 };
+
 
 module.exports = {
   createPaymentOrder,
