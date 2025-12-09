@@ -503,10 +503,12 @@ const makePaymentInCash = async (paymentDate, numberOfMonths, studentId) => {
 
 const razorpayWebhook = async (rawBody, headers) => {
   try {
+    console.log("runWebHook ->>>>>>>>>>>>>>>>>>>>>")
     const razorpaySignature = headers["x-razorpay-signature"];
     const payload = JSON.parse(
       Buffer.isBuffer(rawBody) ? rawBody.toString() : String(rawBody)
     );
+
     const accountId = payload?.account_id;
     const libraryData = await DAO.getOneData(LIBRARY_MODEL, {
       razorPayAccountId: accountId,
@@ -585,6 +587,8 @@ const razorpayWebhook = async (rawBody, headers) => {
           },
         }
       );
+
+      console.log("Complete webhook ->>>>>>>>>>>>>>>>>>>>>>");
 
       return {
         status: "processed",
