@@ -31,11 +31,11 @@ const logger = require('./config/logger');
 // Initialize express app
 const app = express();
 
-app.post(
-  "/api/payments/razorpay/webhook",
-  bodyParser.raw({ type: "*/*" }),   
-  paymentController.razorpayWebhook
+app.post("/api/payments/razorpay/webhook",
+  express.raw({ type: "application/json" }),
+  handleWebhook
 );
+
 
 // Middleware
 app.use(express.json());
