@@ -503,13 +503,14 @@ const makePaymentInCash = async (paymentDate, numberOfMonths, studentId) => {
 
 const razorpayWebhook = async (req, res) => {
   try {
+    console.log("requestssss->>> ", req);
     const rawBody = JSON.stringify(req.body);
-    const razorpaySignature = req.headers["x-razorpay-signature"];
-    const WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET;
-
     console.log("rawBody ", rawBody);
+    const razorpaySignature = req.headers["x-razorpay-signature"];
     console.log("razorpaySignature ", razorpaySignature);
+    const WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET;
     console.log("WEBHOOK_SECRET ", WEBHOOK_SECRET);
+
 
     const expectedSignature = crypto
       .createHmac("sha256", WEBHOOK_SECRET)
