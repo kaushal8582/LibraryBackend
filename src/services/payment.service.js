@@ -3,6 +3,7 @@
 const DAO = require("../dao");
 const crypto = require("crypto");
 const mongoose = require("mongoose");
+const Razorpay = require("razorpay");
 const {
   PAYMENT_MODEL,
   STUDENT_MODEL,
@@ -16,6 +17,7 @@ const {
   razorpayInstance,
 } = require("../utils/razorpayClient");
 const logger = require("../config/logger");
+const sendEmail = require("../utils/sendMail");
 
 
 
@@ -548,6 +550,19 @@ const razorpayWebhook = async (rawBody, headers) => {
       });
 
       if (!payment) {
+        // Send a test webhook email if it looks like a test payment (₹1)
+        if (entity.amount === 100 && libraryData?.contactEmail) {
+          try {
+            await sendEmail(
+              libraryData.contactEmail,
+              "LibTrack: Razorpay webhook valid (Test)",
+              `<p>Webhook verified successfully for test payment.</p>
+               <p>Order ID: ${entity.order_id}</p>
+               <p>Payment ID: ${entity.id}</p>
+               <p>Amount: ₹${entity.amount / 100}</p>`
+            );
+          } catch (_) {}
+        }
         return { status: "ignored", reason: "payment_not_found" };
       }
 
@@ -555,6 +570,20 @@ const razorpayWebhook = async (rawBody, headers) => {
       const updated = await completePaymentProcess(payment, entity.id);
 
       console.log("Webhook completed");
+
+      // If test payment (₹1), send email confirmation
+      if (entity.amount === 100 && libraryData?.contactEmail) {
+        try {
+          await sendEmail(
+            libraryData.contactEmail,
+            "LibTrack: Razorpay webhook valid (Test)",
+            `<p>Webhook verified successfully for test payment.</p>
+             <p>Order ID: ${entity.order_id}</p>
+             <p>Payment ID: ${entity.id}</p>
+             <p>Amount: ₹${entity.amount / 100}</p>`
+          );
+        } catch (_) {}
+      }
       return updated;
     }
 
@@ -566,6 +595,43 @@ const razorpayWebhook = async (rawBody, headers) => {
   }
 };
 
+const testRazorPaySetup = async(userId)=>{
+  try {
+
+    const user = await DAO.getOneData(USER_MODEL, { _id: userId });
+    if (!user) throw new Error("User not found");
+    const role = user?.role;
+    if (role !== "librarian") throw new Error("Only librarian can setup razorpay");
+
+    const library = await DAO.getOneData(LIBRARY_MODEL, { _id: user.libraryId });
+    if (!library) throw new Error("Library not found");
+
+    const razorpayInstance = new Razorpay({
+      key_id: library.razorPayKey,
+      key_secret: library.razorPaySecret,
+    });
+
+
+    const options = {
+      amount:  100,
+      currency: "INR",
+      receipt: "receipt#1",
+      notes: { key: library.razorPayKey },
+    };
+
+    const res = await razorpayInstance.orders.create(options);
+    console.log("response", res);
+    return {razorpayOrder:res};
+  } catch (error) {
+    console.log("error", error);
+    throw new Error("Failed to create razorpay order: " + error.message);
+  }
+}
+
+
+
+
+
 
 module.exports = {
   createPaymentOrder,
@@ -576,4 +642,5 @@ module.exports = {
   processRefund,
   makePaymentInCash,
   razorpayWebhook,
+  testRazorPaySetup,
 };

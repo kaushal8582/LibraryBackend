@@ -129,6 +129,19 @@ const razorpayWebhook = async (req, res) => {
   }
 };
 
+// Test Razorpay setup controller
+const testRazorPaySetup = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    
+    const result = await paymentService.testRazorPaySetup(userId);
+    
+    return successResponse(res, 'Razorpay setup tested successfully', result);
+  } catch (error) {
+    return errorResponse(res, error.message, 400);
+  }
+};
+
 
 
 module.exports = {
@@ -139,5 +152,6 @@ module.exports = {
   getPaymentById,
   processRefund,
   makePaymentInCash,
-  razorpayWebhook
+  razorpayWebhook,
+  testRazorPaySetup,
 };

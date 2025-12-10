@@ -8,7 +8,7 @@ const {
   createPaymentSchema,
   verifyPaymentSchema,
 } = require("../validators/payment.validator");
-const { protect } = require("../middleware/auth.middleware");
+const { protect,adminOrLibrarianOnly } = require("../middleware/auth.middleware");
 
 /**
  * @swagger
@@ -219,4 +219,28 @@ router.post(
   express.raw({ type: "application/json" }),
   paymentController.razorpayWebhook
 );
+
+/**
+ * @swagger
+ * /api/payments/test-razorpay-setup:
+ *   post:
+ *     summary: Test Razorpay setup
+ *     tags: [Payments]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Razorpay setup tested successfully
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ */
+router.post(
+  "/test-razorpay-setup",
+  protect,
+  adminOrLibrarianOnly,
+  paymentController.testRazorPaySetup
+);
+
 module.exports = router;

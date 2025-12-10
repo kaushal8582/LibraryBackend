@@ -69,7 +69,8 @@ const protectOrNot = async (req, res, next) => {
 
 // Admin only middleware
 const adminOnly = (req, res, next) => {
-  if (req.userRole !== 'admin') {
+  console.log(req.userRole);
+  if (req?.userRole !== 'admin') {
     return errorResponse(res, ERROR_CODES.UNAUTHORIZED.message, 403);
   }
   next();
