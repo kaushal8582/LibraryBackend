@@ -553,6 +553,17 @@ const razorpayWebhook = async (rawBody, headers) => {
         // Send a test webhook email if it looks like a test payment (₹1)
         if (entity.amount === 100 && libraryData?.contactEmail) {
           try {
+
+            // Check if it's a test payment (₹1)
+            if (entity.amount === 100) {
+              // Mark library as verified
+              await DAO.updateData(
+                LIBRARY_MODEL,
+                { _id: libraryData._id },
+                { isVerifiedRazorPay: true }
+              );
+            }
+
             await sendEmail(
               libraryData.contactEmail,
               "LibTrack: Razorpay webhook valid (Test)",
@@ -574,6 +585,13 @@ const razorpayWebhook = async (rawBody, headers) => {
       // If test payment (₹1), send email confirmation
       if (entity.amount === 100 && libraryData?.contactEmail) {
         try {
+
+          const updatedLibrary = await DAO.updateData(
+            LIBRARY_MODEL,
+            { _id: libraryData._id },
+            { isVerifiedRazorPay: true }
+          );
+
           await sendEmail(
             libraryData.contactEmail,
             "LibTrack: Razorpay webhook valid (Test)",

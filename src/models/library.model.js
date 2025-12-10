@@ -120,6 +120,10 @@ const librarySchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    isVerifiedRazorPay: {
+      type: Boolean,
+      default: false,
+    },
     isActive: {
       type: Boolean,
       default: true,

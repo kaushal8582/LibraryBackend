@@ -302,15 +302,19 @@ const updateLibrary = async (id, libraryData) => {
     updateLibraryData.aboutLibrary = aboutLibrary;
   }
   if (razorPayKey) {
+    updateLibraryData.isVerifiedRazorPay = false;
     updateLibraryData.razorPayKey = razorPayKey;
   }
   if (razorPaySecret) {
+    updateLibraryData.isVerifiedRazorPay = false;
     updateLibraryData.razorPaySecret = razorPaySecret;
   }
   if (razorPayWebhookSecret) {
+    updateLibraryData.isVerifiedRazorPay = false;
     updateLibraryData.razorPayWebhookSecret = razorPayWebhookSecret;
   }
   if(razorPayAccountId) {
+    updateLibraryData.isVerifiedRazorPay = false;
     updateLibraryData.razorPayAccountId = razorPayAccountId;
   }
 
