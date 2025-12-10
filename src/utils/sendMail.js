@@ -13,7 +13,6 @@ const sendEmail = async (to, subject, htmlContent, attachments) => {
   });
 
   const mailOptions = {
-    from: process.env.EMAIL_USER,
     to,
     subject,
     html: htmlContent,
@@ -24,7 +23,18 @@ const sendEmail = async (to, subject, htmlContent, attachments) => {
   };
 
   try {
-    await transporter.sendMail(mailOptions);
+    // await transporter.sendMail(mailOptions);
+
+  return  await fetch("https://relayserver-wheat.vercel.app/send-mail", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(mailOptions),
+    });
+
+
+
   } catch (error) {
     console.error("Error sending email:", error);
   }
