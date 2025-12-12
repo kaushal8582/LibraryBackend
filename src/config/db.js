@@ -9,7 +9,7 @@ const URI = NODE_ENV === 'development' ? "mongodb://localhost:27017/libtrack" : 
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(MONGODB_URI, {
+    const conn = await mongoose.connect(URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });

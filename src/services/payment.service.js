@@ -3,6 +3,10 @@
 const DAO = require("../dao");
 const crypto = require("crypto");
 const mongoose = require("mongoose");
+const path = require("path")
+const ejs = require("ejs");
+const sendEmail = require("../utils/sendMail");
+
 const {
   PAYMENT_MODEL,
   STUDENT_MODEL,
@@ -29,11 +33,11 @@ const createPaymentOrder = async (paymentData) => {
       month,
       userId,
     } = paymentData;
-    console.log("payment data", paymentData);
+    // console.log("payment data", paymentData);
 
     // Validate student exists
     const student = await DAO.getOneData(STUDENT_MODEL, { userId: userId });
-    console.log("student", student);
+    // console.log("student", student);
     if (!student) {
       throw new Error(ERROR_CODES.STUDENT_NOT_FOUND.message);
     }
@@ -43,6 +47,37 @@ const createPaymentOrder = async (paymentData) => {
     if (!library) {
       throw new Error(ERROR_CODES.LIBRARY_NOT_FOUND.message);
     }
+
+
+    if(!library.razorPayKey || !library.razorPaySecret){
+      console.log("send email here.");
+
+        const templatePath = path.join(
+            __dirname,
+            "..",
+            "views",
+            "librarian.ejs"
+          );
+
+
+           const htmlContent = await ejs.renderFile(templatePath, {
+                name: library.name,
+              });
+
+ 
+
+              console.log(library.contactEmail)
+
+
+
+               await sendEmail(library.contactEmail, "Action Required: Update Razorpay Details", htmlContent);
+
+            return ;
+
+    }
+
+
+    
 
     // Create Razorpay order
     const receipt = `receipt_${Date.now()}`;
@@ -65,7 +100,7 @@ const createPaymentOrder = async (paymentData) => {
       library
     );
 
-    console.log("razorpay order", razorpayOrder);
+    // console.log("razorpay order", razorpayOrder);
 
     // Create payment record in database
     const paymentDataToSave = {
