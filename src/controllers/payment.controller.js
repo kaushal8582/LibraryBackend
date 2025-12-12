@@ -22,6 +22,8 @@ const createPaymentOrder = async (req, res) => {
     
     return successResponse(res, 'Payment order created successfully', result, 201);
   } catch (error) {
+
+    console.log(error.message)
     return errorResponse(res, error.message, 400);
   }
 };
@@ -39,6 +41,7 @@ const verifyPayment = async (req, res) => {
     
     return successResponse(res, 'Payment verified successfully', result);
   } catch (error) {
+    console.log(error.message)
     return errorResponse(res, error.message, 400);
   }
 };
