@@ -337,6 +337,7 @@ const deleteLibrary = async (id) => {
 const filterLibraryDataForUser = async (payload) => {
   try {
     const { searchText, facilities, name, rating, feeRange, sortBy } = payload;
+    // console.log("payload", payload);
 
     const matchQuery = {};
 

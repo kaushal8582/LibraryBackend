@@ -20,7 +20,7 @@ const {
   razorpayInstance,
 } = require("../utils/razorpayClient");
 const logger = require("../config/logger");
-const sendEmail = require("../utils/sendMail");
+// const sendEmail = require("../utils/sendMail");
 
 
 
