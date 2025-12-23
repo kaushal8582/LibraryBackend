@@ -5,7 +5,7 @@ const { MONGODB_URI,NODE_ENV } = require('./env');
 const logger = require('./logger');
 
 
-const URI = NODE_ENV === 'development' ? "mongodb://localhost:27017/libtrack" : MONGODB_URI
+const URI =MONGODB_URI
 
 const connectDB = async () => {
   try {
