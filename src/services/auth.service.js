@@ -15,43 +15,85 @@ const redisClient = require("../lib/redis");
 const config = require("../config/env");
 // Register user
 const register = async (userData) => {
-  // Check if user already exists
-
   const { name, email, password, phoneNo, libraryName, role } = userData;
 
-  // Check if library already exists
-  const existingLibrary = await DAO.getOneData(LIBRARY_MODEL, {
-    contactEmail: email,
-  });
+  // Normalize email to lowercase
+  const normalizedEmail = email.toLowerCase().trim();
+
+  // Check BOTH library and user existence FIRST before creating anything
+  // This prevents race conditions
+  const [existingLibrary, existingUser] = await Promise.all([
+    DAO.getOneData(LIBRARY_MODEL, {
+      contactEmail: normalizedEmail,
+    }),
+    DAO.getOneData(USER_MODEL, { email: normalizedEmail }),
+  ]);
 
   if (existingLibrary) {
     throw new Error(ERROR_CODES.LIBRARY_ALREADY_EXISTS.message);
   }
 
-  const createLibrary = await DAO.createData(LIBRARY_MODEL, {
-    name: libraryName,
-    contactEmail: email,
-    contactPhone: phoneNo,
-  });
-
-  const existingUser = await DAO.getOneData(USER_MODEL, { email });
-
   if (existingUser) {
     throw new Error(ERROR_CODES.USER_ALREADY_EXISTS.message);
   }
 
-  // Create user
-
+  // Hash password before creating anything
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const result = await DAO.createData(USER_MODEL, {
-    name,
-    email,
-    password: hashedPassword,
-    phone: phoneNo,
-    libraryId: createLibrary[0]._id,
-    role: "librarian",
-  });
+  // Create library first
+  let createLibrary;
+  try {
+    createLibrary = await DAO.createData(LIBRARY_MODEL, {
+      name: libraryName.trim(),
+      contactEmail: normalizedEmail,
+      contactPhone: phoneNo?.trim() || "",
+    });
+  } catch (error) {
+    // Handle duplicate key error (race condition caught by unique index)
+    if (error.code === 11000 || error.message?.includes('duplicate key')) {
+      // Check again if library was created by another request
+      const checkLibrary = await DAO.getOneData(LIBRARY_MODEL, {
+        contactEmail: normalizedEmail,
+      });
+      if (checkLibrary) {
+        throw new Error(ERROR_CODES.LIBRARY_ALREADY_EXISTS.message);
+      }
+      throw new Error("Registration failed. Please try again.");
+    }
+    throw error;
+  }
+
+  if (!createLibrary || !createLibrary[0]) {
+    throw new Error("Failed to create library");
+  }
+
+  // Create user with library ID
+  let result;
+  try {
+    result = await DAO.createData(USER_MODEL, {
+      name: name.trim(),
+      email: normalizedEmail,
+      password: hashedPassword,
+      phone: phoneNo?.trim() || "",
+      libraryId: createLibrary[0]._id,
+      role: "librarian",
+    });
+  } catch (error) {
+    // If user creation fails, try to clean up the library
+    // (optional - you might want to keep it for admin review)
+    if (error.code === 11000 || error.message?.includes('duplicate key')) {
+      const checkUser = await DAO.getOneData(USER_MODEL, { email: normalizedEmail });
+      if (checkUser) {
+        throw new Error(ERROR_CODES.USER_ALREADY_EXISTS.message);
+      }
+    }
+    throw error;
+  }
+
+  if (!result || !result[0]) {
+    throw new Error("Failed to create user");
+  }
+
   return result[0];
 };
 

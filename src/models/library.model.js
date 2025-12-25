@@ -21,6 +21,8 @@ const librarySchema = new mongoose.Schema(
       required: [true, "Contact email is required"],
       trim: true,
       lowercase: true,
+      unique: true,
+      index: true,
     },
     contactPhone: {
       type: String,
