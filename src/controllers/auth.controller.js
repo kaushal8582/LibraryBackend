@@ -17,8 +17,10 @@ const register = async (req, res) => {
 // Login controller
 const login = async (req, res) => {
   try {
-    const { email, password, role, libraryId } = req.body;
-    const result = await authService.login(email, password, role, libraryId);
+    const { email, username, password, role, libraryId } = req.body;
+    // For students, use username; for others, use email
+    const emailOrUsername = role === "student" ? username : email;
+    const result = await authService.login(emailOrUsername, password, role, libraryId);
     return successResponse(res, 'Login successful', result);
   } catch (error) {
     return errorResponse(res, error.message, 400);
@@ -91,6 +93,30 @@ const resetPassword = async (req,res)=>{
   }
 }
 
+// Check username availability controller
+const checkUsernameAvailability = async (req, res) => {
+  try {
+    const { username } = req.query;
+    const userId = req.userId || null;
+    const result = await authService.checkUsernameAvailability(username, userId);
+    return successResponse(res, 'Username availability checked', result);
+  } catch (error) {
+    return errorResponse(res, error.message, 400);
+  }
+};
+
+// Update username controller
+const updateUsername = async (req, res) => {
+  try {
+    const { username } = req.body;
+    const userId = req.userId;
+    const result = await authService.updateUsername(username, userId);
+    return successResponse(res, 'Username updated successfully', result);
+  } catch (error) {
+    return errorResponse(res, error.message, 400);
+  }
+};
+
 
 
 module.exports = {
@@ -100,5 +126,7 @@ module.exports = {
   getInfo,
   updatePassword,
   forgetPassword,
-  resetPassword
+  resetPassword,
+  updateUsername,
+  checkUsernameAvailability
 };

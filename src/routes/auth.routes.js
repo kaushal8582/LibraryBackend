@@ -4,7 +4,7 @@ const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/auth.controller');
 const validateRequest = require('../middleware/validateRequest');
-const { registerSchema, loginSchema, refreshTokenSchema, updatePasswordSchema } = require('../validators/auth.validator');
+const { registerSchema, loginSchema, refreshTokenSchema, updatePasswordSchema, updateUsernameSchema } = require('../validators/auth.validator');
 const { protect } = require('../middleware/auth.middleware');
 
 /**
@@ -98,6 +98,8 @@ router.post('/refresh-token', validateRequest(refreshTokenSchema), authControlle
 
 router.get("/info",protect,authController.getInfo)
 router.post("/update-password", validateRequest(updatePasswordSchema), protect,authController.updatePassword)
+router.get("/check-username", protect, authController.checkUsernameAvailability)
+router.post("/update-username", validateRequest(updateUsernameSchema), protect,authController.updateUsername)
 
 
 

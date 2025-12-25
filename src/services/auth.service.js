@@ -56,9 +56,16 @@ const register = async (userData) => {
 };
 
 // Login user
-const login = async (email, password, role, libraryId) => {
-  // Find user
-  const user = await User.findOne({ email }).select("+password");
+const login = async (emailOrUsername, password, role, libraryId) => {
+  // For students, use username; for others, use email
+  let user;
+  if (role === "student") {
+    // Find user by username for students
+    user = await User.findOne({ username: emailOrUsername }).select("+password");
+  } else {
+    // Find user by email for librarians/admins
+    user = await User.findOne({ email: emailOrUsername }).select("+password");
+  }
 
   if (!user) {
     throw new Error(ERROR_CODES.INVALID_CREDENTIALS.message);
@@ -71,18 +78,13 @@ const login = async (email, password, role, libraryId) => {
     throw new Error(ERROR_CODES.INVALID_CREDENTIALS.message);
   }
 
-  // Check role and libraryId
+  // Check role
   if (role && user.role !== role) {
     throw new Error(ERROR_CODES.INVALID_CREDENTIALS.message);
   }
 
- 
-
-  if (role === "student") {
-    if (!libraryId && user.libraryId.toString() !== libraryId) {
-      throw new Error("Library ID does not match");
-    }
-  }
+  // For students, libraryId is already associated with their account, no need to check
+  // Removed libraryId check for students as they're already linked to a library
 
   // Update last login
   await DAO.updateData(
@@ -100,6 +102,7 @@ const login = async (email, password, role, libraryId) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      username: user.username,
       role: user.role,
       libraryId: user.libraryId,
     },
@@ -177,6 +180,7 @@ const userInfo = async (userId) => {
           _id: 1,
           name: 1,
           email: 1,
+          username: 1,
           role: 1,
           phone: 1,
           isActive: 1,
@@ -317,6 +321,75 @@ const resetPassword = async (token, password) => {
   }
 };
 
+// Check username availability
+const checkUsernameAvailability = async (username, userId) => {
+  try {
+    if (!username || username.length < 3) {
+      return { available: false, message: "Username must be at least 3 characters" };
+    }
+
+    if (!/^[a-z0-9_]+$/.test(username)) {
+      return { available: false, message: "Username can only contain lowercase letters, numbers, and underscores" };
+    }
+
+    // Check if username already exists (excluding current user)
+    const query = { username: username.toLowerCase().trim() };
+    if (userId) {
+      query._id = { $ne: mongoose.Types.ObjectId.isValid(userId) ? new mongoose.Types.ObjectId(userId) : userId };
+    }
+    
+    const existingUser = await DAO.getOneData(USER_MODEL, query);
+
+    if (existingUser) {
+      return { available: false, message: "Username already exists" };
+    }
+
+    return { available: true, message: "Username is available" };
+  } catch (error) {
+    return { available: false, message: error.message };
+  }
+};
+
+// Update username
+const updateUsername = async (newUsername, userId) => {
+  try {
+    if (!newUsername) throw new Error("Username is required");
+    
+    // Validate username format
+    if (!/^[a-z0-9_]+$/.test(newUsername)) {
+      throw new Error("Username can only contain lowercase letters, numbers, and underscores");
+    }
+    
+    if (newUsername.length < 3 || newUsername.length > 30) {
+      throw new Error("Username must be between 3 and 30 characters");
+    }
+
+    // Check if username already exists
+    const existingUser = await DAO.getOneData(USER_MODEL, { 
+      username: newUsername.toLowerCase().trim(),
+      _id: { $ne: userId } // Exclude current user
+    });
+
+    if (existingUser) {
+      throw new Error("Username already exists. Please choose a different username.");
+    }
+
+    // Update username
+    await DAO.updateData(
+      USER_MODEL,
+      { _id: userId },
+      { username: newUsername.toLowerCase().trim() }
+    );
+
+    return {
+      message: "Username updated successfully",
+      username: newUsername.toLowerCase().trim()
+    };
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -325,4 +398,6 @@ module.exports = {
   updatePassword,
   forgotPassword,
   resetPassword,
+  updateUsername,
+  checkUsernameAvailability,
 };

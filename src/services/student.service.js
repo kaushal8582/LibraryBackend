@@ -39,9 +39,41 @@ const createStudent = async (studentData, loggedInUser) => {
     const password = Math.random().toString(36).slice(-8);
     const hashPassword = await bcrypt.hash(password, 10);
 
+    // Generate username from name
+    const generateUsername = async (name) => {
+      // Remove special characters and convert to lowercase
+      let baseUsername = name
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, '')
+        .replace(/\s+/g, '_')
+        .substring(0, 20); // Limit to 20 chars
+      
+      // If baseUsername is empty, use a default prefix
+      if (!baseUsername || baseUsername.trim() === '') {
+        baseUsername = 'student';
+      }
+      
+      // Add random number if needed to ensure uniqueness
+      let username = baseUsername;
+      let counter = 1;
+      
+      // Check if username exists, if yes add number
+      let existingUser = await DAO.getOneData(USER_MODEL, { username });
+      while (existingUser && counter < 1000) {
+        username = `${baseUsername}${counter}`;
+        existingUser = await DAO.getOneData(USER_MODEL, { username });
+        counter++;
+      }
+      
+      return username;
+    };
+
+    const username = await generateUsername(studentData.name);
+
     const userPayload = {
       name: studentData.name,
       email: studentData.email,
+      username: username,
       password: hashPassword,
       role: "student",
       libraryId: loggedInUser?.libraryId,
@@ -82,10 +114,11 @@ const createStudent = async (studentData, loggedInUser) => {
     const htmlContent = await ejs.renderFile(templatePath, {
       name: studentData.name,
       email: studentData.email,
+      username: username,
       password: password,
     });
 
-    await sendEmail(studentData.email, "Welcome", htmlContent);
+    await sendEmail(studentData.email, "Welcome to LibTrack", htmlContent);
 
     return student;
   } catch (error) {

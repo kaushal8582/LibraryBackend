@@ -19,6 +19,16 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please provide a valid email']
   },
+  username: {
+    type: String,
+    unique: true,
+    sparse: true, // Allows multiple null values but enforces uniqueness for non-null values
+    trim: true,
+    lowercase: true,
+    minlength: [3, 'Username must be at least 3 characters'],
+    maxlength: [30, 'Username must be less than 30 characters'],
+    match: [/^[a-z0-9_]+$/, 'Username can only contain lowercase letters, numbers, and underscores']
+  },
   password: {
     type: String,
     required: [true, 'Password is required'],
